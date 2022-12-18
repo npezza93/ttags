@@ -1,0 +1,11 @@
+[package]
+name = "ttags"
+version = "0.1.0"
+edition = "2018"
+
+[dependencies]
+tree-sitter-tags = ">=0.20"
+tree-sitter-javascript = ">=0.20"
+tree-sitter-python = ">=0.19"
+tree-sitter-ruby = ">=0.20"
+Inflector = "*"
