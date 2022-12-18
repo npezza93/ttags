@@ -29,26 +29,26 @@ fn main() {
         let tag = tag.unwrap();
         let node_name = ruby_config.syntax_type_name(tag.syntax_type_id);
         let tag_name = &contents[tag.name_range.start..tag.name_range.end];
-        let original_name = str::from_utf8(tag_name.clone()).unwrap_or("");
+        let original_name = str::from_utf8(<&[u8]>::clone(&tag_name)).unwrap_or("");
 
-        let name = name_override(&node_name, &original_name, &tag_name);
+        let name = name_override(node_name, original_name, tag_name);
 
-        tags_file.write(create_tag(&name, &node_name, &tag).as_bytes()).unwrap();
+        tags_file.write_all(create_tag(&name, node_name, &tag).as_bytes()).unwrap();
 
         match node_name {
             "attr_accessor" => {
-                tags_file.write(create_tag(&format!("{}=", name), &node_name, &tag).as_bytes()).unwrap();
+                tags_file.write_all(create_tag(&format!("{}=", name), node_name, &tag).as_bytes()).unwrap();
             },
             "has_many" => {
-                tags_file.write(create_tag(&format!("{}=", name), &node_name, &tag).as_bytes()).unwrap();
-                tags_file.write(create_tag(&format!("{}_ids", to_singular(&name)), &node_name, &tag).as_bytes()).unwrap();
-                tags_file.write(create_tag(&format!("{}_ids=", to_singular(&name)), &node_name, &tag).as_bytes()).unwrap();
+                tags_file.write_all(create_tag(&format!("{}=", name), node_name, &tag).as_bytes()).unwrap();
+                tags_file.write_all(create_tag(&format!("{}_ids", to_singular(&name)), node_name, &tag).as_bytes()).unwrap();
+                tags_file.write_all(create_tag(&format!("{}_ids=", to_singular(&name)), node_name, &tag).as_bytes()).unwrap();
             },
             "has_one" | "belongs_to" => {
-                tags_file.write(create_tag(&format!("{}=", name), &node_name, &tag).as_bytes()).unwrap();
-                tags_file.write(create_tag(&format!("build_{}", name), &node_name, &tag).as_bytes()).unwrap();
-                tags_file.write(create_tag(&format!("create_{}", name), &node_name, &tag).as_bytes()).unwrap();
-                tags_file.write(create_tag(&format!("create_{}!", name), &node_name, &tag).as_bytes()).unwrap();
+                tags_file.write_all(create_tag(&format!("{}=", name), node_name, &tag).as_bytes()).unwrap();
+                tags_file.write_all(create_tag(&format!("build_{}", name), node_name, &tag).as_bytes()).unwrap();
+                tags_file.write_all(create_tag(&format!("create_{}", name), node_name, &tag).as_bytes()).unwrap();
+                tags_file.write_all(create_tag(&format!("create_{}!", name), node_name, &tag).as_bytes()).unwrap();
             }
             _ => {}
         }
@@ -73,8 +73,8 @@ fn create_tag<'a>(name: &'a str, node_name: &'a str, tag: &'a Tag) -> String {
 
 fn name_override<'a>(node_name: &'a str, original_name: &'a str, tag_name: &'a [u8]) -> String {
     let mut name =
-        if original_name.chars().nth(0).unwrap() == ':' {
-            (&original_name[1..tag_name.len()]).to_string()
+        if original_name.starts_with(':') {
+            original_name[1..tag_name.len()].to_string()
         } else {
             original_name.to_string()
         };
@@ -82,7 +82,7 @@ fn name_override<'a>(node_name: &'a str, original_name: &'a str, tag_name: &'a [
 
     name = match node_name {
         "constructor" => "new".to_string(),
-        "attr_writer" => String::from(name) + "=",
+        "attr_writer" => name + "=",
         _ => name.to_string()
     };
 
