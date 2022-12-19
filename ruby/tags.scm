@@ -69,38 +69,33 @@
     ]) @definition.module
 )
 
-(call method: (identifier) @definition.scope_def
-      arguments: (argument_list ((simple_symbol) @name) @definition.scope)
-      (#eq? @definition.scope_def "scope"))
-
-(call method: (identifier) @definition.has_many_def
-      arguments: (argument_list ((simple_symbol) @name) @definition.has_many)
-      (#eq? @definition.has_many_def "has_many"))
-
-(call method: (identifier) @definition.has_one_def
-      arguments: (argument_list ((simple_symbol) @name) @definition.has_one)
-      (#eq? @definition.has_one_def "has_one"))
-
-(call method: (identifier) @definition.belongs_to_def
-      arguments: (argument_list ((simple_symbol) @name) @definition.belongs_to)
-      (#eq? @definition.belongs_to_def "belongs_to"))
-
-
 (assignment left: (constant) @name @definition.constant
  (#match? @name "^[A-Z\\d_]+$"))
 
+(call method: (identifier) @definition.scope_def
+      (argument_list ((simple_symbol) @name) @definition.scope)
+      (#eq? @definition.scope_def "scope"))
+
+(call method: (identifier) @definition.has_many_def
+      (argument_list ((simple_symbol) @name) @definition.has_many)
+      (#eq? @definition.has_many_def "has_many"))
+
+(call method: (identifier) @definition.has_one_def
+      (argument_list ((simple_symbol) @name) @definition.has_one)
+      (#eq? @definition.has_one_def "has_one|belongs_to"))
+
 (call method: (identifier) @definition.attr_reader_def
-      arguments: (argument_list ((simple_symbol) @name) @definition.attr_reader)
+      (argument_list ((simple_symbol) @name) @definition.attr_reader)
       (#eq? @definition.attr_reader_def "attr_reader"))
 
 (call method: (identifier) @definition.attr_accessor_def
-      arguments: (argument_list ((simple_symbol) @name) @definition.attr_accessor)
+      (argument_list ((simple_symbol) @name) @definition.attr_accessor)
       (#eq? @definition.attr_accessor_def "attr_accessor"))
 
 (call method: (identifier) @definition.attr_writer_def
-      arguments: (argument_list ((simple_symbol) @name) @definition.attr_writer)
+      (argument_list ((simple_symbol) @name) @definition.attr_writer)
       (#eq? @definition.attr_writer_def "attr_writer"))
 
 (call method: (identifier) @definition.delegate_def
-      arguments: (argument_list ((simple_symbol) @name) @definition.delegate)
+      (argument_list ((simple_symbol) @name) @definition.delegate)
       (#eq? @definition.delegate_def "delegate"))
