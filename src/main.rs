@@ -6,12 +6,13 @@ use std::io::Write;
 use inflector::string::singularize::to_singular;
 use std::env;
 
+const DELEGATE_SCHEMA: &str = include_str!("../ruby/delegate.scm");
+
 fn main() {
     let args: Vec<String> = env::args().collect();
 
-    let mut context = TagsContext::new();
     let mut tags_file = File::create("tags_output").unwrap();
-
+    let mut context = TagsContext::new();
     let ruby_config = TagsConfiguration::new(
         tree_sitter_ruby::language(),
         include_str!("../ruby/tags.scm"),
@@ -28,8 +29,9 @@ fn main() {
             let node_name = ruby_config.syntax_type_name(tag.syntax_type_id);
             let tag_name = &contents[tag.name_range.start..tag.name_range.end];
             let original_name = str::from_utf8(<&[u8]>::clone(&tag_name)).unwrap_or("");
+            let docs = tag.docs.clone().unwrap_or_else(|| "".to_string()).as_bytes().to_owned();
 
-            let name = name_override(node_name, original_name, tag_name, &tag, &contents);
+            let name = name_override(node_name, original_name, tag_name, &docs);
 
             match node_name {
                 "attr_accessor" => {
@@ -58,7 +60,7 @@ fn main() {
                 _ => vec![create_tag(&name, node_name, &tag, filename)]
             }
         }).collect::<Vec<String>>()
-    }).for_each(|line: String| tags_file.write_all(line.as_bytes()).unwrap());
+    }).collect::<Vec<String>>().iter().for_each(|line: &String| tags_file.write_all(line.as_bytes()).unwrap());
 }
 
 fn create_tag<'a>(name: &'a str, node_name: &'a str, tag: &'a Tag, filename: &'a str) -> String {
@@ -76,7 +78,7 @@ fn create_tag<'a>(name: &'a str, node_name: &'a str, tag: &'a Tag, filename: &'a
     format!("{}\t{}\t:{}\t{}\n", name, filename, row + 1, kind)
 }
 
-fn name_override<'a>(node_name: &'a str, original_name: &'a str, tag_name: &'a [u8], tag: &'a Tag, contents: &'a [u8]) -> String {
+fn name_override<'a>(node_name: &'a str, original_name: &'a str, tag_name: &'a [u8], docs: &'a [u8]) -> String {
     let mut name =
         if original_name.starts_with(':') {
             original_name[1..tag_name.len()].to_string()
@@ -93,17 +95,18 @@ fn name_override<'a>(node_name: &'a str, original_name: &'a str, tag_name: &'a [
             parser.set_language(tree_sitter_ruby::language()).unwrap();
             parser.reset();
 
-            let tree = parser.parse(&contents, None).unwrap();
-            let query_schema = include_str!("../ruby/delegate.scm");
-            let query = Query::new(tree_sitter_ruby::language(), query_schema).unwrap();
+            let tree = parser.parse(&docs, None).unwrap();
+            let query = Query::new(tree_sitter_ruby::language(), DELEGATE_SCHEMA).unwrap();
 
-            let matches = cursor.matches(&query, tree.root_node(), contents);
+            let mut matches = cursor.matches(&query, tree.root_node(), docs);
 
-            for matchy in matches {
-                if matchy.captures[1].node.byte_range() == tag.name_range {
-                    let prefix = matchy.captures[3].node.utf8_text(contents).unwrap().to_owned();
+            if let Some(matchy) = matches.next() {
+                return if matchy.captures.len() == 2 {
+                    let prefix = matchy.captures[1].node.utf8_text(docs).unwrap().to_owned();
 
-                    return prefix[1..prefix.len()].to_string() + "_" + &name
+                    prefix[1..prefix.len()].to_string() + "_" + &name
+                } else {
+                    name
                 }
             }
             return name

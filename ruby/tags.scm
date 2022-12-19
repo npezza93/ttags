@@ -96,6 +96,6 @@
       (argument_list ((simple_symbol) @name) @definition.attr_writer)
       (#eq? @definition.attr_writer_def "attr_writer"))
 
-(call method: (identifier) @definition.delegate_def
-      (argument_list ((simple_symbol) @name) @definition.delegate)
+((call method: (identifier) @definition.delegate_def
+      (argument_list ((simple_symbol) @name) @definition.delegate)) @doc
       (#eq? @definition.delegate_def "delegate"))
