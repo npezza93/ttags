@@ -162,6 +162,7 @@ name = "ttags"
 version = "0.1.0"
 dependencies = [
  "Inflector",
+ "tree-sitter",
  "tree-sitter-javascript",
  "tree-sitter-python",
  "tree-sitter-ruby",
