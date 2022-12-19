@@ -1,4 +1,5 @@
 use tree_sitter_tags::{Tag, TagsContext, TagsConfiguration};
+use tree_sitter::{Parser, QueryCursor, Query};
 use std::{fs, str};
 use std::fs::File;
 use std::io::Write;
@@ -83,6 +84,34 @@ fn name_override<'a>(node_name: &'a str, original_name: &'a str, tag_name: &'a [
     name = match node_name {
         "constructor" => "new".to_string(),
         "attr_writer" => name + "=",
+        "delegate" => {
+            let mut parser = Parser::new();
+            let mut cursor = QueryCursor::new();
+            parser.set_language(tree_sitter_ruby::language()).unwrap();
+            parser.reset();
+
+            let tree = parser.parse(&contents, None).unwrap();
+            let query_schema = "(call method: (identifier) @delegate_def
+                              arguments: (
+                                argument_list (simple_symbol) @name
+                                (pair key: (hash_key_symbol) value: (true))?
+                                (pair key: (hash_key_symbol) @to value: (simple_symbol) @receiver)
+                                (pair key: (hash_key_symbol) value: (true))?)
+                              (#eq? @delegate_def \"delegate\")
+                              (#eq? @to \"to\"))";
+            let query = Query::new(tree_sitter_ruby::language(), query_schema).unwrap();
+
+            let matches = cursor.matches(&query, tree.root_node(), &*contents);
+
+            for matchy in matches {
+                if matchy.captures[1].node.byte_range() == tag.name_range {
+                    let prefix = matchy.captures[3].node.utf8_text(&contents).unwrap().to_owned();
+
+                    return prefix[1..prefix.len()].to_string() + "_" + &name.to_string()
+                }
+            }
+            return name.to_string()
+        },
         _ => name.to_string()
     };
 

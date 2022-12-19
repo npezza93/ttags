@@ -100,3 +100,7 @@
 (call method: (identifier) @definition.attr_writer_def
       arguments: (argument_list ((simple_symbol) @name) @definition.attr_writer)
       (#eq? @definition.attr_writer_def "attr_writer"))
+
+(call method: (identifier) @definition.delegate_def
+      arguments: (argument_list ((simple_symbol) @name) @definition.delegate)
+      (#eq? @definition.delegate_def "delegate"))
