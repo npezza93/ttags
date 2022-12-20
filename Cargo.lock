@@ -126,16 +126,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "tree-sitter-python"
-version = "0.20.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dda114f58048f5059dcf158aff691dffb8e113e6d2b50d94263fd68711975287"
-dependencies = [
- "cc",
- "tree-sitter",
-]
-
-[[package]]
 name = "tree-sitter-ruby"
 version = "0.20.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -164,7 +154,6 @@ dependencies = [
  "Inflector",
  "tree-sitter",
  "tree-sitter-javascript",
- "tree-sitter-python",
  "tree-sitter-ruby",
  "tree-sitter-tags",
 ]
