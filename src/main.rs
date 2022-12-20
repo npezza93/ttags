@@ -6,6 +6,7 @@ use std::fs;
 use std::path::Path;
 
 mod ruby;
+mod javascript;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -17,6 +18,11 @@ fn main() {
         include_str!("../ruby/tags.scm"),
         tree_sitter_ruby::LOCALS_QUERY,
     ).unwrap();
+    let javascript_config = TagsConfiguration::new(
+        tree_sitter_javascript::language(),
+        include_str!("../javascript/tags.scm"),
+        tree_sitter_javascript::LOCALS_QUERY,
+    ).unwrap();
 
     args[1..].iter().flat_map(|filename| {
         let contents = fs::read(&filename).unwrap();
@@ -27,6 +33,7 @@ fn main() {
             Some(os_str) => {
                 match os_str.to_str() {
                     Some("rb") => ruby::generate_tags(&mut context, &ruby_config, filename, &contents),
+                    Some("js") => javascript::generate_tags(&mut context, &javascript_config, filename, &contents),
                     _ => vec![]
                 }
             }
