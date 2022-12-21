@@ -1,4 +1,4 @@
-use tree_sitter_tags::{TagsContext, TagsConfiguration};
+use tree_sitter_tags::TagsContext;
 use std::fs::File;
 use std::io::Write;
 use std::env;
@@ -14,16 +14,8 @@ fn main() {
 
     let mut tags_file = File::create("tags_output").unwrap();
     let mut context = TagsContext::new();
-    let ruby_config = TagsConfiguration::new(
-        tree_sitter_ruby::language(),
-        include_str!("../ruby/tags.scm"),
-        tree_sitter_ruby::LOCALS_QUERY,
-    ).unwrap();
-    let javascript_config = TagsConfiguration::new(
-        tree_sitter_javascript::language(),
-        include_str!("../javascript/tags.scm"),
-        tree_sitter_javascript::LOCALS_QUERY,
-    ).unwrap();
+    let ruby_config = ruby::config();
+    let javascript_config = javascript::config();
     let rust_config = rust::config();
 
     args[1..].iter().flat_map(|filename| {

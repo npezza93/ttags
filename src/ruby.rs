@@ -5,6 +5,14 @@ use inflector::string::singularize::to_singular;
 
 const DELEGATE_SCHEMA: &str = include_str!("../ruby/delegate.scm");
 
+pub fn config() -> TagsConfiguration {
+    TagsConfiguration::new(
+        tree_sitter_ruby::language(),
+        include_str!("../ruby/tags.scm"),
+        tree_sitter_ruby::LOCALS_QUERY,
+    ).unwrap()
+}
+
 pub fn generate_tags(context: &mut TagsContext, config: &TagsConfiguration, filename: &str, contents: &[u8]) -> Vec<String> {
     let tags = context.generate_tags(config, contents, None).unwrap().0;
 
