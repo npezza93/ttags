@@ -7,6 +7,7 @@ use std::path::Path;
 
 mod ruby;
 mod javascript;
+mod rust;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -23,6 +24,7 @@ fn main() {
         include_str!("../javascript/tags.scm"),
         tree_sitter_javascript::LOCALS_QUERY,
     ).unwrap();
+    let rust_config = rust::config();
 
     args[1..].iter().flat_map(|filename| {
         let contents = fs::read(&filename).unwrap();
@@ -34,6 +36,7 @@ fn main() {
                 match os_str.to_str() {
                     Some("rb") => ruby::generate_tags(&mut context, &ruby_config, filename, &contents),
                     Some("js") => javascript::generate_tags(&mut context, &javascript_config, filename, &contents),
+                    Some("rs") => rust::generate_tags(&mut context, &rust_config, filename, &contents),
                     _ => vec![]
                 }
             }
