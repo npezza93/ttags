@@ -1,5 +1,11 @@
 use clap::{App, Arg};
 
+impl Default for Config {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 pub struct Config {
     pub files: Vec<String>
 }
