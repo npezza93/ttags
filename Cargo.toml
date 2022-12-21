@@ -1,7 +1,15 @@
 [package]
 name = "ttags"
 version = "0.1.0"
+authors = ["Nick Pezza <pezza@hey.com>"]
 edition = "2018"
+license-file = "LICENSE"
+repository = "https://github.com/npezza93/ttags"
+
+[[bin]]
+name = "ttags"
+path = "src/main.rs"
+
 
 [dependencies]
 tree-sitter-tags = ">=0.20"
@@ -10,3 +18,4 @@ tree-sitter-javascript = ">=0.20"
 tree-sitter-ruby = ">=0.20"
 tree-sitter-rust = ">=0.20"
 Inflector = "*"
+clap="^2.31.2"
