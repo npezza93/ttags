@@ -66,7 +66,7 @@ fn create_tag<'a>(name: &'a str, node_name: &'a str, tag: &'a Tag, filename: &'a
         _ => node_name
     };
 
-    format!("{}\t{}\t:{}\t{}\n", name, filename, row + 1, kind)
+    format!("{}\t{}\t{};\"\t{}\n", name, filename, row + 1, kind)
 }
 
 fn name_override<'a>(node_name: &'a str, original_name: &'a str, tag_name: &'a [u8], docs: &'a [u8]) -> String {
