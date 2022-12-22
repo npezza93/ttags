@@ -5,7 +5,8 @@ use sugar_path::SugarPath;
 use std::env;
 use pathdiff::diff_paths;
 use std::io::{self, Write, BufWriter};
-use std::fs::{self, File};
+use std::fs::File;
+use walkdir::WalkDir;
 
 impl Default for Config {
     fn default() -> Self {
@@ -99,9 +100,11 @@ impl Config {
             let path = Path::new(&f).resolve();
 
             if path.is_dir() {
-                fs::read_dir(path).unwrap().map(|entry| {
-                    Self::path_to_string(entry.unwrap().path())
-                }).collect()
+                WalkDir::new(path).into_iter().
+                    filter(|entry| entry.as_ref().unwrap().path().is_file()).
+                    map(|entry| {
+                        Self::path_to_string(entry.unwrap().path().to_path_buf())
+                    }).collect()
             } else {
                 vec![Self::path_to_string(path)]
             }
