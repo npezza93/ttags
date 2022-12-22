@@ -67,9 +67,9 @@ impl Config {
         Arg::with_name("tag_file")
             .short("f")
             .long("tag-file")
-            .value_name("FILE")
+            .value_name("FILE|-")
             .takes_value(true)
-            .help("File to write tags to")
+            .help("File to write tags to. Use '-' to output to stdout")
             .default_value("./tags")
     }
 
