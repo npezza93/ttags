@@ -9,9 +9,10 @@ use std::fs;
 use std::path::Path;
 
 pub mod config;
-mod ruby;
-mod javascript;
-mod rust;
+pub mod tag;
+pub mod ruby;
+pub mod javascript;
+pub mod rust;
 
 use config::Config;
 
@@ -44,7 +45,7 @@ impl App {
                     }
                 }
             }
-        }).for_each(|line| tags_file.write_all(line.as_bytes()).unwrap());
+        }).for_each(|line| tags_file.write_all(&line.as_bytes()).unwrap());
 
         Ok(exit_code)
     }

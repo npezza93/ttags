@@ -1,7 +1,9 @@
-use tree_sitter_tags::{Tag, TagsContext, TagsConfiguration};
+use tree_sitter_tags::{Tag as TSTag, TagsContext, TagsConfiguration};
 use tree_sitter::{Parser, QueryCursor, Query};
 use std::str;
 use inflector::string::singularize::to_singular;
+
+use crate::tag::Tag;
 
 const DELEGATE_SCHEMA: &str = include_str!("../ruby/delegate.scm");
 
@@ -13,7 +15,7 @@ pub fn config() -> TagsConfiguration {
     ).unwrap()
 }
 
-pub fn generate_tags(context: &mut TagsContext, config: &TagsConfiguration, filename: &str, contents: &[u8]) -> Vec<String> {
+pub fn generate_tags<'a>(context: &'a mut TagsContext, config: &'a TagsConfiguration, filename: &'a str, contents: &'a [u8]) -> Vec<Tag> {
     let tags = context.generate_tags(config, contents, None).unwrap().0;
 
     tags.flat_map(|tag| {
@@ -51,10 +53,10 @@ pub fn generate_tags(context: &mut TagsContext, config: &TagsConfiguration, file
             }
             _ => vec![create_tag(&name, node_name, &tag, filename)]
         }
-    }).collect::<Vec<String>>()
+    }).collect::<Vec<Tag>>()
 }
 
-fn create_tag<'a>(name: &'a str, node_name: &'a str, tag: &'a Tag, filename: &'a str) -> String {
+fn create_tag<'a>(name: &'a str, node_name: &'a str, tag: &'a TSTag, filename: &'a str) -> Tag {
     let row = tag.span.start.row;
 
     let kind = match node_name {
@@ -66,7 +68,7 @@ fn create_tag<'a>(name: &'a str, node_name: &'a str, tag: &'a Tag, filename: &'a
         _ => node_name
     };
 
-    format!("{}\t{}\t{};\"\t{}\n", name, filename, row + 1, kind)
+    Tag::new(name, filename, row + 1, kind)
 }
 
 fn name_override<'a>(node_name: &'a str, original_name: &'a str, tag_name: &'a [u8], docs: &'a [u8]) -> String {
