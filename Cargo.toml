@@ -10,7 +10,6 @@ repository = "https://github.com/npezza93/ttags"
 name = "ttags"
 path = "src/main.rs"
 
-
 [dependencies]
 tree-sitter = ">=0.20"
 tree-sitter-tags = { git = "https://github.com/npezza93/tree-sitter" }
