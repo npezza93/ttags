@@ -249,7 +249,7 @@ dependencies = [
 [[package]]
 name = "tree-sitter-tags"
 version = "0.20.2"
-source = "git+https://github.com/npezza93/tree-sitter#0c3ad766b275088ab3fcf5c73b00a247402f22fd"
+source = "git+https://github.com/npezza93/tree-sitter#fb7843424756e243460da5ff83c91f9248e67020"
 dependencies = [
  "memchr",
  "regex",
