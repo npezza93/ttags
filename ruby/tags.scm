@@ -72,30 +72,6 @@
 (assignment left: (constant) @name @definition.constant
  (#match? @name "^[A-Z\\d_]+$"))
 
-(call method: (identifier) @definition.scope_def
-      (argument_list ((simple_symbol) @name) @definition.scope)
-      (#eq? @definition.scope_def "scope"))
-
-(call method: (identifier) @definition.has_many_def
-      (argument_list ((simple_symbol) @name) @definition.has_many)
-      (#eq? @definition.has_many_def "has_many"))
-
-(call method: (identifier) @definition.has_one_def
-      (argument_list ((simple_symbol) @name) @definition.has_one)
-      (#eq? @definition.has_one_def "has_one|belongs_to"))
-
-(call method: (identifier) @definition.attr_reader_def
-      (argument_list ((simple_symbol) @name) @definition.attr_reader)
-      (#eq? @definition.attr_reader_def "attr_reader"))
-
-(call method: (identifier) @definition.attr_accessor_def
-      (argument_list ((simple_symbol) @name) @definition.attr_accessor)
-      (#eq? @definition.attr_accessor_def "attr_accessor"))
-
-(call method: (identifier) @definition.attr_writer_def
-      (argument_list ((simple_symbol) @name) @definition.attr_writer)
-      (#eq? @definition.attr_writer_def "attr_writer"))
-
-((call method: (identifier) @definition.delegate_def
-      (argument_list ((simple_symbol) @name) @definition.delegate)) @doc
-      (#eq? @definition.delegate_def "delegate"))
+((call method: (identifier) @metadata
+      (argument_list ((simple_symbol) @name)) @definition.macro) @doc
+      (#match? @metadata "has_many|has_one|belongs_to|scope|attr_reader|attr_accessor|attr_writer|delegate"))

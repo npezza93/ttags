@@ -25,34 +25,45 @@ pub fn generate_tags<'a>(context: &'a mut TagsContext, config: &'a TagsConfigura
         let original_name = str::from_utf8(<&[u8]>::clone(&tag_name)).unwrap_or("");
         let docs = tag.docs.clone().unwrap_or_else(|| "".to_string()).as_bytes().to_owned();
 
-        let name = name_override(node_name, original_name, tag_name, &docs);
+        let name = name_override(node_name, original_name, tag_name);
 
-        match node_name {
-            "attr_accessor" => {
-                vec![
-                    create_tag(&name, node_name, &tag, filename),
-                    create_tag(&format!("{}=", name), node_name, &tag, filename)
-                ]
-            },
-            "has_many" => {
-                vec![
-                    create_tag(&name, node_name, &tag, filename),
-                    create_tag(&format!("{}=", name), node_name, &tag, filename),
-                    create_tag(&format!("{}_ids", to_singular(&name)), node_name, &tag, filename),
-                    create_tag(&format!("{}_ids=", to_singular(&name)), node_name, &tag, filename)
-                ]
-            },
-            "has_one" | "belongs_to" => {
-                vec![
-                    create_tag(&name, node_name, &tag, filename),
-                    create_tag(&format!("{}=", name), node_name, &tag, filename),
-                    create_tag(&format!("build_{}", to_singular(&name)), node_name, &tag, filename),
-                    create_tag(&format!("create_{}", to_singular(&name)), node_name, &tag, filename),
-                    create_tag(&format!("create_{}!", to_singular(&name)), node_name, &tag, filename)
-                ]
+        if node_name == "macro" {
+            if let Some(metadata) = &tag.metadata {
+                match metadata.as_str() {
+                    "has_one" | "belongs_to" => {
+                        vec![
+                            create_tag(&name, metadata.as_str(), &tag, filename),
+                            create_tag(&format!("{}=", name), metadata.as_str(), &tag, filename),
+                            create_tag(&format!("build_{}", to_singular(&name)), metadata.as_str(), &tag, filename),
+                            create_tag(&format!("create_{}", to_singular(&name)), metadata.as_str(), &tag, filename),
+                            create_tag(&format!("create_{}!", to_singular(&name)), metadata.as_str(), &tag, filename)
+                        ]
+                    },
+                    "has_many" => {
+                        vec![
+                            create_tag(&name, metadata.as_str(), &tag, filename),
+                            create_tag(&format!("{}=", name), metadata.as_str(), &tag, filename),
+                            create_tag(&format!("{}_ids", to_singular(&name)), metadata.as_str(), &tag, filename),
+                            create_tag(&format!("{}_ids=", to_singular(&name)), metadata.as_str(), &tag, filename)
+                        ]
+                    },
+                    "attr_accessor" => {
+                        vec![
+                            create_tag(&name, metadata.as_str(), &tag, filename),
+                            create_tag(&format!("{}=", name), metadata.as_str(), &tag, filename)
+                        ]
+                    },
+                    "attr_writer" => vec![create_tag(&format!("{}=", name), metadata.as_str(), &tag, filename)],
+                    "delegate" => vec![create_tag(&delegate_name(&name, &docs), metadata.as_str(), &tag, filename)],
+                    _ => vec![create_tag(&name, metadata.as_str(), &tag, filename)],
+                }
+            } else {
+                vec![]
             }
-            _ => vec![create_tag(&name, node_name, &tag, filename)]
+        } else {
+            vec![create_tag(&name, node_name, &tag, filename)]
         }
+
     }).collect::<Vec<Tag>>()
 }
 
@@ -60,7 +71,7 @@ fn create_tag<'a>(name: &'a str, node_name: &'a str, tag: &'a TSTag, filename: &
     let row = tag.span.start.row;
 
     let kind = match node_name {
-        "method" | "constructor" | "attr_reader" | "attr_writer" | "attr_accessor" => "f",
+        "method" | "constructor" | "attr_reader" | "attr_writer" | "attr_accessor" | "delegate" => "f",
         "class" => "c",
         "module" => "m",
         "constant" => "C",
@@ -71,41 +82,39 @@ fn create_tag<'a>(name: &'a str, node_name: &'a str, tag: &'a TSTag, filename: &
     Tag::new(name, filename, row + 1, kind)
 }
 
-fn name_override<'a>(node_name: &'a str, original_name: &'a str, tag_name: &'a [u8], docs: &'a [u8]) -> String {
-    let mut name =
-        if original_name.starts_with(':') {
-            original_name[1..tag_name.len()].to_string()
-        } else {
-            original_name.to_string()
-        };
+fn name_override<'a>(node_name: &'a str, original_name: &'a str, tag_name: &'a [u8]) -> String {
+    if original_name.starts_with(':') {
+        original_name[1..tag_name.len()].to_string()
+    } else if node_name == "constructor" {
+        "new".to_string()
+    } else {
+        original_name.to_string()
+    }
+}
 
-    name = match node_name {
-        "constructor" => "new".to_string(),
-        "attr_writer" => name + "=",
-        "delegate" => {
-            let mut parser = Parser::new();
-            let mut cursor = QueryCursor::new();
-            parser.set_language(tree_sitter_ruby::language()).unwrap();
-            parser.reset();
+fn delegate_name<'a>(parsed_name: &'a str, docs: &'a [u8]) -> String {
+    let mut parser = Parser::new();
+    let mut cursor = QueryCursor::new();
+    parser.set_language(tree_sitter_ruby::language()).unwrap();
+    parser.reset();
 
-            let tree = parser.parse(&docs, None).unwrap();
-            let query = Query::new(tree_sitter_ruby::language(), DELEGATE_SCHEMA).unwrap();
+    let tree = parser.parse(&docs, None).unwrap();
+    let query = Query::new(tree_sitter_ruby::language(), DELEGATE_SCHEMA).unwrap();
 
-            let mut matches = cursor.matches(&query, tree.root_node(), docs);
+    let mut matches = cursor.matches(&query, tree.root_node(), docs);
 
-            if let Some(matchy) = matches.next() {
-                return if matchy.captures.len() == 2 {
-                    let prefix = matchy.captures[1].node.utf8_text(docs).unwrap().to_owned();
+    let name =
+        if let Some(matchy) = matches.next() {
+            if matchy.captures.len() == 2 {
+                let prefix = matchy.captures[1].node.utf8_text(docs).unwrap().to_owned();
 
-                    prefix[1..prefix.len()].to_string() + "_" + &name
-                } else {
-                    name
-                }
+                prefix[1..prefix.len()].to_string() + "_" + &parsed_name
+            } else {
+                parsed_name.to_string()
             }
-            return name
-        },
-        _ => name.to_string()
-    };
+        } else {
+            parsed_name.to_string()
+        };
 
     name
 }
