@@ -22,7 +22,7 @@ impl App {
         let config = Config::new();
         let exit_code = 0;
 
-        let mut tags_file = File::create(config.tag_file).unwrap();
+        let mut tags_file = File::create(config.tag_path).unwrap();
         let mut context = TagsContext::new();
 
         let ruby_config = ruby::config();
