@@ -19,13 +19,8 @@ pub fn generate_tags<'a>(context: &'a mut TagsContext, config: &'a TagsConfigura
         let node_name = config.syntax_type_name(tag.syntax_type_id);
         let tag_name = &contents[tag.name_range.start..tag.name_range.end];
         let original_name = str::from_utf8(<&[u8]>::clone(&tag_name)).unwrap_or("");
-        let docs = tag.docs.clone().unwrap_or_else(|| "".to_string()).as_bytes().to_owned();
 
-        let name = name_override(node_name, original_name, tag_name, &docs);
-
-        match node_name {
-            _ => vec![create_tag(&name, node_name, &tag, filename)]
-        }
+        vec![create_tag(original_name, node_name, &tag, filename)]
     }).collect::<Vec<Tag>>()
 }
 
@@ -39,8 +34,4 @@ fn create_tag<'a>(name: &'a str, node_name: &'a str, tag: &'a TSTag, filename: &
     };
 
     Tag::new(name, filename, row + 1, kind)
-}
-
-fn name_override<'a>(_node_name: &'a str, original_name: &'a str, _tag_name: &'a [u8], _docs: &'a [u8]) -> String {
-    original_name.to_string()
 }
