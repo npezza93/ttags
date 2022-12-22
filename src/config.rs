@@ -5,7 +5,7 @@ use sugar_path::SugarPath;
 use std::env;
 use pathdiff::diff_paths;
 use std::io::{self, Write, BufWriter};
-use std::fs::File;
+use std::fs::{self, File};
 
 impl Default for Config {
     fn default() -> Self {
@@ -95,16 +95,21 @@ impl Config {
     }
 
     fn fetch_files(matches: &ArgMatches<'_>) -> Vec<String> {
-        matches.values_of("files").unwrap().map(|f| {
-            Self::path_to_string(Path::new(&f).resolve())
+        matches.values_of("files").unwrap().flat_map(|f| {
+            let path = Path::new(&f).resolve();
+
+            if path.is_dir() {
+                fs::read_dir(path).unwrap().map(|entry| {
+                    Self::path_to_string(entry.unwrap().path())
+                }).collect()
+            } else {
+                vec![Self::path_to_string(path)]
+            }
         }).collect()
     }
 
     fn fetch_tag_file(matches: &ArgMatches<'_>) -> PathBuf {
-        let arg = matches.value_of("tag_file").unwrap();
-        let path = Path::new(arg).resolve();
-
-        path
+        Path::new(matches.value_of("tag_file").unwrap()).resolve()
     }
 
     fn fetch_relative_path(matches: &ArgMatches<'_>) -> PathBuf {
