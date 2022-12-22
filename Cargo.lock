@@ -96,6 +96,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2dffe52ecf27772e601905b7522cb4ef790d2cc203488bbd0e2fe85fcb74566d"
 
 [[package]]
+name = "pathdiff"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8835116a5c179084a830efb3adc117ab007512b535bc1a21c991d3b32a6b44dd"
+
+[[package]]
 name = "proc-macro2"
 version = "1.0.49"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -234,6 +240,7 @@ version = "0.1.0"
 dependencies = [
  "Inflector",
  "clap",
+ "pathdiff",
  "tree-sitter",
  "tree-sitter-javascript",
  "tree-sitter-ruby",

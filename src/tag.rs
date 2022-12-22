@@ -1,3 +1,5 @@
+use crate::config::Config;
+
 pub struct Tag {
     pub name: String,
     pub filename: String,
@@ -15,8 +17,8 @@ impl Tag {
         }
     }
 
-    pub fn as_bytes(self) -> Vec<u8> {
+    pub fn as_bytes(self, config: &Config) -> Vec<u8> {
         format!("{}\t{}\t{};\"\t{}\n",
-            self.name, self.filename, self.row, self.kind).as_bytes().to_vec()
+            self.name, config.path_relative_to_file(&self.filename), self.row, self.kind).as_bytes().to_vec()
     }
 }

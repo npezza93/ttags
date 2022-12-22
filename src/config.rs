@@ -1,6 +1,7 @@
 use clap::{App, Arg, ArgMatches};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::env;
+use pathdiff::diff_paths;
 
 impl Default for Config {
     fn default() -> Self {
@@ -20,8 +21,8 @@ impl Config {
         let matches = Self::menu().get_matches();
 
         let files         = Self::fetch_files(&matches);
-        let tag_path      = Self::fetch_tag_file(&matches);
-        let relative_path = Self::fetch_relative_path(&matches);
+        let tag_path      = Self::path_to_string(Self::fetch_tag_file(&matches));
+        let relative_path = Self::path_to_string(Self::fetch_relative_path(&matches));
         let append        = matches.value_of("append") == Some("yes");
 
         Self { files, tag_path, relative_path, append }
@@ -77,21 +78,27 @@ impl Config {
 
     fn fetch_files(matches: &ArgMatches<'_>) -> Vec<String> {
         matches.values_of("files").unwrap().map(|f| {
-            Path::new(&f).canonicalize().unwrap().
-                into_os_string().into_string().unwrap()
+            Self::path_to_string(Path::new(&f).canonicalize().unwrap())
         }).collect()
     }
 
-    fn fetch_tag_file(matches: &ArgMatches<'_>) -> String {
-        Path::new(matches.value_of("tag_file").unwrap()).
-            canonicalize().unwrap().into_os_string().into_string().unwrap()
+    fn fetch_tag_file(matches: &ArgMatches<'_>) -> PathBuf {
+        Path::new(matches.value_of("tag_file").unwrap()).canonicalize().unwrap()
     }
 
-    fn fetch_relative_path(matches: &ArgMatches<'_>) -> String {
+    fn fetch_relative_path(matches: &ArgMatches<'_>) -> PathBuf {
         if matches.value_of("relative") == Some("yes") {
-            Self::fetch_tag_file(&matches)
+            Self::fetch_tag_file(&matches).parent().unwrap().to_path_buf()
         } else {
-            env::current_dir().unwrap().into_os_string().into_string().unwrap()
+            env::current_dir().unwrap()
         }
+    }
+
+    fn path_to_string(path: PathBuf) -> String {
+        path.into_os_string().into_string().unwrap()
+    }
+
+    pub fn path_relative_to_file(&self, filename: &str) -> String {
+        Self::path_to_string(diff_paths(&filename, &self.relative_path).unwrap())
     }
 }

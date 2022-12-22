@@ -23,7 +23,7 @@ impl App {
         let config = Config::new();
         let exit_code = 0;
 
-        let mut tags_file = File::create(config.tag_path).unwrap();
+        let mut tags_file = File::create(&config.tag_path).unwrap();
         let mut context = TagsContext::new();
 
         let ruby_config = ruby::config();
@@ -45,7 +45,7 @@ impl App {
                     }
                 }
             }
-        }).for_each(|line| tags_file.write_all(&line.as_bytes()).unwrap());
+        }).for_each(|line| tags_file.write_all(&line.as_bytes(&config)).unwrap());
 
         Ok(exit_code)
     }
