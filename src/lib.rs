@@ -2,7 +2,6 @@
 extern crate clap;
 
 use tree_sitter_tags::TagsContext;
-use std::fs::File;
 use std::io::Write;
 use std::error::Error;
 use std::fs;
@@ -23,8 +22,8 @@ impl App {
         let config = Config::new();
         let exit_code = 0;
 
-        let mut tags_file = File::create(&config.tag_path).unwrap();
         let mut context = TagsContext::new();
+        let mut output = config.output();
 
         let ruby_config = ruby::config();
         let javascript_config = javascript::config();
@@ -45,7 +44,7 @@ impl App {
                     }
                 }
             }
-        }).for_each(|line| tags_file.write_all(&line.as_bytes(&config)).unwrap());
+        }).for_each(|line| output.write_all(&line.as_bytes(&config)).unwrap());
 
         Ok(exit_code)
     }

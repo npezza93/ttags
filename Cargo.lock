@@ -96,6 +96,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2dffe52ecf27772e601905b7522cb4ef790d2cc203488bbd0e2fe85fcb74566d"
 
 [[package]]
+name = "once_cell"
+version = "1.16.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "86f0b0d4bf799edbc74508c1e8bf170ff5f41238e5f8225603ca7caaae2b7860"
+
+[[package]]
 name = "pathdiff"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -141,6 +147,15 @@ name = "strsim"
 version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8ea5119cdb4c55b55d432abb513a0429384878c15dde60cc77b1c99de1a95a6a"
+
+[[package]]
+name = "sugar_path"
+version = "0.0.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ee844c02e1da98f3d28be447c4de7103a54a8fbbcdb4a5967a7946674a8d35d3"
+dependencies = [
+ "once_cell",
+]
 
 [[package]]
 name = "syn"
@@ -240,6 +255,7 @@ dependencies = [
  "Inflector",
  "clap",
  "pathdiff",
+ "sugar_path",
  "tree-sitter",
  "tree-sitter-javascript",
  "tree-sitter-ruby",
