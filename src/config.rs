@@ -39,15 +39,23 @@ impl Config {
 
     pub fn output(&self) -> BufWriter<Box<dyn Write>> {
         BufWriter::new(
-            if Path::new(&self.tag_path).file_name() == Some(OsStr::new("-")) {
+            if self.going_to_stdout() {
                 Box::new(io::stdout())
             } else {
                 let mut options = OpenOptions::new();
-                let options = options.append(self.append).write(true).read(true).create(true);
+                let options = options.append(self.should_append()).write(true).read(true).create(true);
 
                 Box::new(options.open(&self.tag_path).unwrap())
             }
         )
+    }
+
+    pub fn should_append(&self) -> bool {
+        self.append && !self.going_to_stdout()
+    }
+
+    fn going_to_stdout(&self) -> bool {
+        Path::new(&self.tag_path).file_name() == Some(OsStr::new("-"))
     }
 
     fn menu<'a>() -> App<'a, 'a> {
