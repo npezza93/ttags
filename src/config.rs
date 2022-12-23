@@ -4,8 +4,8 @@ use std::ffi::OsStr;
 use sugar_path::SugarPath;
 use std::env;
 use pathdiff::diff_paths;
-use std::io::{self, Write, BufWriter};
-use std::fs::OpenOptions;
+use std::io::{self, Write, BufWriter, BufReader, Read};
+use std::fs::{File, OpenOptions};
 use walkdir::WalkDir;
 
 impl Default for Config {
@@ -43,15 +43,29 @@ impl Config {
                 Box::new(io::stdout())
             } else {
                 let mut options = OpenOptions::new();
-                let options = options.append(self.should_append()).write(true).read(true).create(true);
+                let options = options.write(true).read(true).create(true);
 
                 Box::new(options.open(&self.tag_path).unwrap())
             }
         )
     }
 
-    pub fn should_append(&self) -> bool {
+    pub fn appending(&self) -> bool {
         self.append && !self.going_to_stdout()
+    }
+
+    pub fn clear_tag_file(&self) {
+        File::create(&self.tag_path).expect("Failed clearing file");
+    }
+
+    pub fn current_tag_contents(&self) -> String {
+        let file = File::open(&self.tag_path).expect("Failed reading tags file");
+        let mut reader = BufReader::new(file);
+        let mut contents = String::new();
+
+        reader.read_to_string(&mut contents).unwrap();
+
+        contents.trim().to_string()
     }
 
     fn going_to_stdout(&self) -> bool {
