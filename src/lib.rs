@@ -22,14 +22,11 @@ pub struct App {}
 
 impl App {
     pub fn run() -> Result<i32, Box<dyn Error>> {
-        let config = Config::new();
-        let exit_code = 0;
-
-        let mut context = TagsContext::new();
-
-        let ruby_config = ruby::config();
+        let mut context       = TagsContext::new();
+        let config            = Config::new();
+        let ruby_config       = ruby::config();
         let javascript_config = javascript::config();
-        let rust_config = rust::config();
+        let rust_config       = rust::config();
 
         let tags = config.files.iter().flat_map(|filename| {
             match fs::read(&filename) {
@@ -74,6 +71,6 @@ impl App {
 
         tags.for_each(|line| output.write_all(&line.as_bytes(&config)).unwrap());
 
-        Ok(exit_code)
+        Ok(0)
     }
 }
