@@ -5,7 +5,7 @@ use sugar_path::SugarPath;
 use std::env;
 use pathdiff::diff_paths;
 use std::io::{self, Write, BufWriter};
-use std::fs::File;
+use std::fs::OpenOptions;
 use walkdir::WalkDir;
 
 impl Default for Config {
@@ -28,7 +28,7 @@ impl Config {
         let files         = Self::fetch_files(&matches);
         let tag_path      = Self::path_to_string(Self::fetch_tag_file(&matches));
         let relative_path = Self::path_to_string(Self::fetch_relative_path(&matches));
-        let append        = matches.value_of("append") == Some("yes");
+        let append        = matches.is_present("append");
 
         Self { files, tag_path, relative_path, append }
     }
@@ -42,7 +42,10 @@ impl Config {
             if Path::new(&self.tag_path).file_name() == Some(OsStr::new("-")) {
                 Box::new(io::stdout())
             } else {
-                Box::new(File::create(&self.tag_path).unwrap())
+                let mut options = OpenOptions::new();
+                let options = options.append(self.append).write(true).read(true).create(true);
+
+                Box::new(options.open(&self.tag_path).unwrap())
             }
         )
     }
@@ -86,13 +89,10 @@ impl Config {
 
     fn append_arg<'a>() -> Arg<'a, 'a> {
         Arg::with_name("append")
-            .value_name("yes|no")
             .short("a")
             .long("append")
-            .takes_value(true)
-            .possible_values(&["yes", "no"])
+            .takes_value(false)
             .help("Append tags to existing file")
-            .default_value("no")
     }
 
     fn fetch_files(matches: &ArgMatches<'_>) -> Vec<String> {
@@ -116,7 +116,7 @@ impl Config {
     }
 
     fn fetch_relative_path(matches: &ArgMatches<'_>) -> PathBuf {
-        let tag_file = Self::fetch_tag_file(&matches);
+        let tag_file = Self::fetch_tag_file(matches);
 
         if matches.value_of("relative") == Some("yes") &&
              tag_file.as_path().file_name() != Some(OsStr::new("-")) {

@@ -23,13 +23,12 @@ impl App {
         let exit_code = 0;
 
         let mut context = TagsContext::new();
-        let mut output = config.output();
 
         let ruby_config = ruby::config();
         let javascript_config = javascript::config();
         let rust_config = rust::config();
 
-        config.files.iter().flat_map(|filename| {
+        let tags = config.files.iter().flat_map(|filename| {
             let contents = fs::read(&filename).unwrap();
             let path = Path::new(filename);
 
@@ -44,7 +43,10 @@ impl App {
                     }
                 }
             }
-        }).for_each(|line| output.write_all(&line.as_bytes(&config)).unwrap());
+        });
+
+        let mut output = config.output();
+        tags.for_each(|line| output.write_all(&line.as_bytes(&config)).unwrap());
 
         Ok(exit_code)
     }
