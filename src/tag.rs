@@ -12,7 +12,7 @@ impl Tag {
         Tag {
             name: name.to_owned(),
             filename: filename.to_owned(),
-            row: row + 1,
+            row,
             kind: kind.to_owned()
         }
     }

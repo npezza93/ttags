@@ -74,4 +74,4 @@
 
 ((call method: (identifier) @metadata
       (argument_list ((simple_symbol) @name)) @definition.macro) @doc
-      (#match? @metadata "has_many|has_one|belongs_to|scope|attr_reader|attr_accessor|attr_writer|delegate"))
+      (#match? @metadata "^(has_many|has_one|belongs_to|scope|attr_reader|attr_accessor|attr_writer|delegate)$"))
