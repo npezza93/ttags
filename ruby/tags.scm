@@ -32,9 +32,6 @@
 (alias
   name: (_) @name) @definition.method
 
-(setter
-  (identifier) @ignore)
-
 ; Class definitions
 
 (
@@ -44,14 +41,12 @@
     (class
       name: [
         (constant) @name
-        (scope_resolution
-          name: (_) @name)
+        (scope_resolution) @name
       ]) @definition.class
     (singleton_class
       value: [
         (constant) @name
-        (scope_resolution
-          name: (_) @name)
+        (scope_resolution) @name
       ]) @definition.class
   ]
   (#strip! @doc "^#\\s*")
@@ -64,8 +59,7 @@
   (module
     name: [
       (constant) @name
-      (scope_resolution
-        name: (_) @name)
+      (scope_resolution) @name
     ]) @definition.module
 )
 
