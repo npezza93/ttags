@@ -101,12 +101,10 @@ impl Config {
 
     fn relative_arg<'a>() -> Arg<'a, 'a> {
         Arg::with_name("relative")
-            .long("tag-relative")
-            .value_name("yes|no")
-            .takes_value(true)
-            .possible_values(&["yes", "no"])
-            .help("Should paths be relative to location of tag file?")
-            .default_value("yes")
+            .long("relative")
+            .short("r")
+            .takes_value(false)
+            .help("Should paths be relative to cwd? By default, it's relative to tag-file")
     }
 
     fn append_arg<'a>() -> Arg<'a, 'a> {
@@ -140,7 +138,7 @@ impl Config {
     fn fetch_relative_path(matches: &ArgMatches<'_>) -> PathBuf {
         let tag_file = Self::fetch_tag_file(matches);
 
-        if matches.value_of("relative") == Some("yes") &&
+        if !matches.is_present("relative") &&
              tag_file.as_path().file_name() != Some(OsStr::new("-")) {
             tag_file.parent().unwrap().to_path_buf()
         } else {

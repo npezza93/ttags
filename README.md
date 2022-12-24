@@ -34,8 +34,9 @@ ttags $(git ls-files)
 - `-a` or `--apend` - Will keep your tag file in tact and only update the tags
   for the files passed.
 
-- `--tag-relative=<yes|no>` - Make paths outputed in the tags file be relative to the
-  location of the tag file (yes, default) or to where you run `ttags`
+- `-r` or `--tag-relative` - Make paths outputed in the tags file be relative to the
+  current working directory (i.e. where you called `ttags`)? By default, the tag
+  path is relative to the `tag-file` location.
 
 - `-f` or `--tag-file=file` - Path to the file where tags should be written. If
   `-` is passed, tags are outputted to stdout.
