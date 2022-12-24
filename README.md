@@ -6,7 +6,7 @@ ttags generates ctags using [Tree-sitter](https://github.com/tree-sitter/tree-si
 
 ##### macOS and Linux
 
-```
+```bash
 cargo install ttags
 ```
 
@@ -14,7 +14,7 @@ Binaries are also available on the releases page of the repo.
 Download the tar file, and place the executable in your path.
 
 ##### From source
-```
+```bash
 git clone https://github.com/npezza93/ttags
 cd ttags
 cargo build --release
@@ -25,7 +25,7 @@ cargo build --release
 
 Give a list of file paths and/or directories to ttags to parse and generate.
 
-```
+```bash
 ttags $(git ls-files)
 ```
 
