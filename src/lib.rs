@@ -9,6 +9,7 @@ use std::path::Path;
 use std::process::exit;
 use std::str;
 use sugar_path::SugarPath;
+use rayon::prelude::*;
 
 pub mod config;
 pub mod tag;
