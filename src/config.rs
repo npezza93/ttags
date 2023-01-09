@@ -34,7 +34,7 @@ impl Config {
     }
 
     pub fn path_relative_to_file(&self, filename: &str) -> String {
-        Self::path_to_string(diff_paths(&filename, &self.relative_path).unwrap())
+        Self::path_to_string(diff_paths(filename, &self.relative_path).unwrap())
     }
 
     pub fn output(&self) -> BufWriter<Box<dyn Write>> {

@@ -23,7 +23,7 @@ pub fn generate_tags<'a>(context: &'a mut TagsContext, config: &'a TagsConfigura
         let node_name = config.syntax_type_name(tag.syntax_type_id);
         let tag_name = &contents[tag.name_range.start..tag.name_range.end];
         let original_name = str::from_utf8(<&[u8]>::clone(&tag_name)).unwrap_or("");
-        let docs = tag.docs.clone().unwrap_or_else(|| "".to_string()).as_bytes().to_owned();
+        let docs = tag.docs.clone().unwrap_or_default().as_bytes().to_owned();
 
         let name = name_override(node_name, original_name, tag_name);
 
@@ -98,7 +98,7 @@ fn delegate_name<'a>(parsed_name: &'a str, docs: &'a [u8]) -> String {
     parser.set_language(tree_sitter_ruby::language()).unwrap();
     parser.reset();
 
-    let tree = parser.parse(&docs, None).unwrap();
+    let tree = parser.parse(docs, None).unwrap();
     let query = Query::new(tree_sitter_ruby::language(), DELEGATE_SCHEMA).unwrap();
 
     let mut matches = cursor.matches(&query, tree.root_node(), docs);

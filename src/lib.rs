@@ -29,7 +29,7 @@ impl App {
         let rust_config       = rust::config();
 
         let tags = config.files.iter().flat_map(|filename| {
-            match fs::read(&filename) {
+            match fs::read(filename) {
                 Ok(contents) => {
                     let path = Path::new(filename);
 
