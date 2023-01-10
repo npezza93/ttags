@@ -65,6 +65,9 @@ impl App {
 
         config.clear_tag_file();
         tags.par_sort_by_key(|tag| tag.name.clone());
+
+        output.write_all("!_TAG_FILE_FORMAT\t2\t/extended format; --format=1 will not append ;\" to lines/\n".as_bytes()).unwrap();
+        output.write_all("!_TAG_FILE_SORTED\t1\t/0=unsorted, 1=sorted, 2=foldcase/\n".as_bytes()).unwrap();
         tags.iter().for_each(|tag| {
             output.write_all(&tag.as_bytes(&config)).unwrap()
         });
