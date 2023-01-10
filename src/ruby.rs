@@ -105,7 +105,7 @@ fn delegate_name<'a>(parsed_name: &'a str, docs: &'a [u8]) -> String {
 
     let name =
         if let Some(matchy) = matches.next() {
-            if matchy.captures.len() == 2 {
+            if let Some(_prefix_match) = matches.next() {
                 let prefix = matchy.captures[1].node.utf8_text(docs).unwrap().to_owned();
 
                 prefix[1..prefix.len()].to_string() + "_" + parsed_name
