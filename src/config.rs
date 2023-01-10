@@ -8,6 +8,8 @@ use std::io::{self, Write, BufWriter, BufReader, Read};
 use std::fs::{File, OpenOptions};
 use walkdir::WalkDir;
 
+use crate::tag::Tag;
+
 impl Default for Config {
     fn default() -> Self {
         Self::new()
@@ -58,14 +60,14 @@ impl Config {
         File::create(&self.tag_path).expect("Failed clearing file");
     }
 
-    pub fn current_tag_contents(&self) -> String {
+    pub fn current_tag_contents(&self) -> Vec<Tag> {
         let file = File::open(&self.tag_path).expect("Failed reading tags file");
         let mut reader = BufReader::new(file);
         let mut contents = String::new();
 
         reader.read_to_string(&mut contents).unwrap();
 
-        contents.trim().to_string()
+        contents.trim().split('\n').map(|line| Tag::parse(line)).collect()
     }
 
     fn going_to_stdout(&self) -> bool {

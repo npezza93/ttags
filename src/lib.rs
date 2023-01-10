@@ -7,8 +7,6 @@ use std::error::Error;
 use std::fs;
 use std::path::Path;
 use std::process::exit;
-use std::str;
-use sugar_path::SugarPath;
 use rayon::prelude::*;
 
 pub mod config;
@@ -18,6 +16,7 @@ pub mod javascript;
 pub mod rust;
 
 use config::Config;
+use crate::tag::Tag;
 
 pub struct App {}
 
@@ -29,7 +28,7 @@ impl App {
         let javascript_config = javascript::config();
         let rust_config       = rust::config();
 
-        let tags = config.files.iter().flat_map(|filename| {
+        let mut tags: Vec<Tag> = config.files.iter().flat_map(|filename| {
             match fs::read(filename) {
                 Ok(contents) => {
                     let path = Path::new(filename);
@@ -55,22 +54,20 @@ impl App {
                     }
                 }
             }
-        });
+        }).collect();
 
         let mut output = config.output();
         if config.appending() {
-            let filtered = config.current_tag_contents().split('\n').filter(|line| {
-                let path = Path::new(&line.split('\t').collect::<Vec<&str>>()[1]).resolve().into_os_string().into_string().unwrap();
-
-                !config.files.contains(&path)
-            }).collect::<Vec<&str>>().join("\n");
-
-            config.clear_tag_file();
-            output.write_all(filtered.as_bytes()).unwrap();
-            output.write_all(b"\n").unwrap();
+            tags.extend(config.current_tag_contents().iter().filter(|tag| {
+                !config.files.contains(&tag.filename)
+            }).cloned().collect::<Vec<Tag>>());
         }
 
-        tags.for_each(|line| output.write_all(&line.as_bytes(&config)).unwrap());
+        config.clear_tag_file();
+        tags.par_sort_by_key(|tag| tag.name.clone());
+        tags.iter().for_each(|tag| {
+            output.write_all(&tag.as_bytes(&config)).unwrap()
+        });
 
         Ok(0)
     }
