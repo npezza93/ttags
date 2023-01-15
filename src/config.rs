@@ -1,4 +1,4 @@
-use clap::{App, Arg, ArgMatches};
+use clap::{App, AppSettings, Arg, ArgMatches, SubCommand};
 use std::path::{Path, PathBuf};
 use std::ffi::OsStr;
 use sugar_path::SugarPath;
@@ -21,18 +21,20 @@ pub struct Config {
     pub tag_path: String,
     pub relative_path: String,
     pub append: bool,
+    pub lsp: bool,
 }
 
 impl Config {
     pub fn new() -> Self {
         let matches = Self::menu().get_matches();
 
-        let files         = Self::fetch_files(&matches);
+        let lsp           = matches.subcommand_name() == Some("lsp");
+        let files         = Self::fetch_files(&matches, lsp);
         let tag_path      = Self::path_to_string(Self::fetch_tag_file(&matches));
         let relative_path = Self::path_to_string(Self::fetch_relative_path(&matches));
         let append        = matches.is_present("append");
 
-        Self { files, tag_path, relative_path, append }
+        Self { files, tag_path, relative_path, append, lsp }
     }
 
     pub fn path_relative_to_file(&self, filename: &str) -> String {
@@ -78,10 +80,12 @@ impl Config {
         App::new("ttags")
             .version(crate_version!())
             .author(crate_authors!())
+            .setting(AppSettings::SubcommandsNegateReqs)
             .arg(Self::files_arg())
             .arg(Self::tag_file_arg())
             .arg(Self::relative_arg())
             .arg(Self::append_arg())
+            .subcommand(Self::lsp_subcommand())
     }
 
     fn files_arg<'a>() -> Arg<'a, 'a> {
@@ -97,6 +101,7 @@ impl Config {
             .long("tag-file")
             .value_name("FILE|-")
             .takes_value(true)
+            .required(false)
             .help("File to write tags to. Use '-' to output to stdout")
             .default_value("./tags")
     }
@@ -117,20 +122,30 @@ impl Config {
             .help("Append tags to existing file")
     }
 
-    fn fetch_files(matches: &ArgMatches<'_>) -> Vec<String> {
-        matches.values_of("files").unwrap().flat_map(|f| {
-            let path = Path::new(&f).resolve();
+    fn lsp_subcommand<'a>() -> App<'a, 'a> {
+        SubCommand::with_name("lsp")
+            .about("Creates lsp server")
+            .setting(AppSettings::DisableVersion)
+    }
 
-            if path.is_dir() {
-                WalkDir::new(path).into_iter().
-                    filter(|entry| entry.as_ref().unwrap().path().is_file()).
-                    map(|entry| {
-                        Self::path_to_string(entry.unwrap().path().to_path_buf())
-                    }).collect()
-            } else {
-                vec![Self::path_to_string(path)]
-            }
-        }).collect()
+    fn fetch_files(matches: &ArgMatches<'_>, lsp: bool) -> Vec<String> {
+        if lsp {
+            vec![]
+        } else {
+            matches.values_of("files").unwrap().flat_map(|f| {
+                let path = Path::new(&f).resolve();
+
+                if path.is_dir() {
+                    WalkDir::new(path).into_iter().
+                        filter(|entry| entry.as_ref().unwrap().path().is_file()).
+                        map(|entry| {
+                            Self::path_to_string(entry.unwrap().path().to_path_buf())
+                        }).collect()
+                } else {
+                    vec![Self::path_to_string(path)]
+                }
+            }).collect()
+        }
     }
 
     fn fetch_tag_file(matches: &ArgMatches<'_>) -> PathBuf {
