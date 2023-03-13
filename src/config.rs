@@ -69,7 +69,9 @@ impl Config {
 
         reader.read_to_string(&mut contents).unwrap();
 
-        contents.trim().split('\n').map(|line| Tag::parse(line)).collect()
+        contents.trim().split('\n').
+            filter(|line| !line.starts_with("!_")).
+            map(|line| Tag::parse(line)).collect()
     }
 
     fn going_to_stdout(&self) -> bool {
