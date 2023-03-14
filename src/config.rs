@@ -1,4 +1,4 @@
-use clap::{App, AppSettings, Arg, ArgMatches, SubCommand};
+use clap::{App, AppSettings, Arg, ArgMatches};
 use std::path::{Path, PathBuf};
 use std::ffi::OsStr;
 use sugar_path::SugarPath;
@@ -28,7 +28,7 @@ impl Config {
     pub fn new() -> Self {
         let matches = Self::menu().get_matches();
 
-        let lsp           = matches.subcommand_name() == Some("lsp");
+        let lsp           = matches.is_present("lsp");
         let files         = Self::fetch_files(&matches, lsp);
         let tag_path      = Self::path_to_string(Self::fetch_tag_file(&matches));
         let relative_path = Self::path_to_string(Self::fetch_relative_path(&matches));
@@ -87,14 +87,14 @@ impl Config {
             .arg(Self::tag_file_arg())
             .arg(Self::relative_arg())
             .arg(Self::append_arg())
-            .subcommand(Self::lsp_subcommand())
+            .arg(Self::lsp_arg())
     }
 
     fn files_arg<'a>() -> Arg<'a, 'a> {
         Arg::with_name("files")
             .multiple(true)
             .help("Specify files to parse for tags")
-            .required(true)
+            .required_unless("lsp")
     }
 
     fn tag_file_arg<'a>() -> Arg<'a, 'a> {
@@ -124,10 +124,11 @@ impl Config {
             .help("Append tags to existing file")
     }
 
-    fn lsp_subcommand<'a>() -> App<'a, 'a> {
-        SubCommand::with_name("lsp")
-            .about("Creates lsp server")
-            .setting(AppSettings::DisableVersion)
+    fn lsp_arg<'a>() -> Arg<'a, 'a> {
+        Arg::with_name("lsp")
+            .long("lsp")
+            .takes_value(false)
+            .help("Creates lsp server")
     }
 
     fn fetch_files(matches: &ArgMatches<'_>, lsp: bool) -> Vec<String> {

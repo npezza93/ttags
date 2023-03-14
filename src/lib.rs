@@ -28,7 +28,7 @@ impl App {
             let stdin = tokio::io::stdin();
             let stdout = tokio::io::stdout();
 
-            let (service, socket) = LspService::new(|client| Backend { client });
+            let (service, socket) = LspService::build(|client| Backend { client }).finish();
             Server::new(stdin, stdout, socket).serve(service).await;
         } else {
             Tagger::run(&config, &config.files);
