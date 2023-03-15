@@ -13,17 +13,19 @@ pub mod rust;
 
 use config::Config;
 use crate::tagger::Tagger;
+use crate::lsp::Lsp;
 
 pub struct App {}
 
 impl App {
     pub fn run() -> Result<i32, Box<dyn Error>> {
         let config = Config::new();
+        let mut tagger = Tagger::new(&config);
 
         if config.lsp {
-            lsp::run()?;
+            Lsp::run(&mut tagger)?;
         } else {
-            Tagger::run(&config, &config.files);
+            tagger.run(&config.files);
         }
 
         Ok(0)

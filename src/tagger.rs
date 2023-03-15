@@ -1,4 +1,4 @@
-use tree_sitter_tags::TagsContext;
+use tree_sitter_tags::{TagsContext, TagsConfiguration};
 use std::io::Write;
 use std::fs;
 use std::path::Path;
@@ -11,35 +11,32 @@ use crate::ruby;
 use crate::javascript;
 use crate::rust;
 
-pub struct Tagger {
+pub struct Tagger<'a> {
+    pub context: TagsContext,
+    pub ruby_config: TagsConfiguration,
+    pub javascript_config: TagsConfiguration,
+    pub rust_config: TagsConfiguration,
+    pub config: &'a Config,
 }
 
-impl Tagger {
-    pub fn run(config: &Config, files: &Vec<String>) -> () {
-        let mut context       = TagsContext::new();
+impl Tagger<'_> {
+    pub fn new(config: &'_ Config) -> Tagger<'_> {
+        let context       = TagsContext::new();
         let ruby_config       = ruby::config();
         let javascript_config = javascript::config();
         let rust_config       = rust::config();
 
-        let mut tags: Vec<Tag> = files.iter().flat_map(|filename| {
+        Tagger { config, context, ruby_config, javascript_config, rust_config }
+    }
+
+    pub fn run(&mut self, files: &[String]) {
+        let tags: Vec<Tag> = files.iter().flat_map(|filename| {
             match fs::read(filename) {
                 Ok(contents) => {
-                    let path = Path::new(filename);
-
-                    match path.extension() {
-                        Some(os_str) => {
-                            match os_str.to_str() {
-                                Some("rb") => ruby::generate_tags(&mut context, &ruby_config, filename, &contents),
-                                Some("js") => javascript::generate_tags(&mut context, &javascript_config, filename, &contents),
-                                Some("rs") => rust::generate_tags(&mut context, &rust_config, filename, &contents),
-                                _ => vec![]
-                            }
-                        },
-                        None => vec![]
-                    }
+                    self.parse(filename, &contents)
                 },
                 Err(_) => {
-                    if config.appending() {
+                    if self.config.appending() {
                         vec![]
                     } else {
                         println!("{} not found", filename);
@@ -49,20 +46,40 @@ impl Tagger {
             }
         }).collect();
 
-        let mut output = config.output();
-        if config.appending() {
-            tags.extend(config.current_tag_contents().iter().filter(|tag| {
-                !config.files.contains(&tag.filename)
+        self.write(tags);
+    }
+
+    pub fn parse(&mut self, filename: &str, contents: &[u8]) -> Vec<Tag> {
+        let path = Path::new(filename);
+
+        match path.extension() {
+            Some(os_str) => {
+                match os_str.to_str() {
+                    Some("rb") => ruby::generate_tags(&mut self.context, &self.ruby_config, filename, contents),
+                    Some("js") => javascript::generate_tags(&mut self.context, &self.javascript_config, filename, contents),
+                    Some("rs") => rust::generate_tags(&mut self.context, &self.rust_config, filename, contents),
+                    _ => vec![]
+                }
+            },
+            None => vec![]
+        }
+    }
+
+    pub fn write(&mut self, mut tags: Vec<Tag>) {
+        let mut output = self.config.output();
+        if self.config.appending() {
+            tags.extend(self.config.current_tag_contents().iter().filter(|tag| {
+                !self.config.files.contains(&tag.filename)
             }).cloned().collect::<Vec<Tag>>());
         }
 
-        config.clear_tag_file();
+        self.config.clear_tag_file();
         tags.par_sort_by_key(|tag| tag.name.clone());
 
         output.write_all("!_TAG_FILE_FORMAT\t2\t/extended format; --format=1 will not append ;\" to lines/\n".as_bytes()).unwrap();
         output.write_all("!_TAG_FILE_SORTED\t1\t/0=unsorted, 1=sorted, 2=foldcase/\n".as_bytes()).unwrap();
         tags.iter().for_each(|tag| {
-            output.write_all(&tag.as_bytes(&config)).unwrap()
+            output.write_all(&tag.as_bytes(self.config)).unwrap()
         });
     }
 }

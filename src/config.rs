@@ -32,7 +32,7 @@ impl Config {
         let files         = Self::fetch_files(&matches, lsp);
         let tag_path      = Self::path_to_string(Self::fetch_tag_file(&matches));
         let relative_path = Self::path_to_string(Self::fetch_relative_path(&matches));
-        let append        = matches.is_present("append");
+        let append        = matches.is_present("append") || lsp;
 
         Self { files, tag_path, relative_path, append, lsp }
     }
@@ -71,7 +71,7 @@ impl Config {
 
         contents.trim().split('\n').
             filter(|line| !line.starts_with("!_")).
-            map(|line| Tag::parse(line)).collect()
+            map(Tag::parse).collect()
     }
 
     fn going_to_stdout(&self) -> bool {
