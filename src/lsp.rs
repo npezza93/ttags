@@ -1,58 +1,48 @@
-use tower_lsp::jsonrpc::Result;
-use tower_lsp::lsp_types::*;
-use tower_lsp::{Client, LanguageServer};
-use std::io::{self, Write, BufWriter, BufReader, Read};
-use std::fs::{File, OpenOptions};
+use std::error::Error;
 
-#[derive(Debug)]
-pub struct Backend {
-    pub client: Client,
+use lsp_types::{TextDocumentSyncKind, TextDocumentSyncCapability, TextDocumentSyncOptions, ServerCapabilities, InitializeParams};
+use lsp_server::{Connection, Message};
+
+pub fn run() -> Result<i32, Box<dyn Error>> {
+    let (connection, io_threads) = Connection::stdio();
+
+    let server_capabilities = serde_json::to_value(&ServerCapabilities {
+        text_document_sync: Some(TextDocumentSyncCapability::Options(TextDocumentSyncOptions {
+            open_close: None,
+            change: Some(TextDocumentSyncKind::FULL),
+            will_save: None,
+            will_save_wait_until: None,
+            save: None,
+        })),
+        ..Default::default()
+    }).unwrap();
+    let initialization_params = connection.initialize(server_capabilities)?;
+    main_loop(connection, initialization_params)?;
+    io_threads.join()?;
+
+    Ok(0)
 }
 
-#[tower_lsp::async_trait]
-impl LanguageServer for Backend {
-    async fn initialize(&self, _: InitializeParams) -> Result<InitializeResult> {
-        OpenOptions::new().write(true).append(true).open("/Users/nick/Documents/ttags/logfile").unwrap().write_all(b"A new line!");
-        Ok(InitializeResult {
-            server_info: None,
-            capabilities: ServerCapabilities {
-                text_document_sync: Some(TextDocumentSyncCapability::Kind(
-                    TextDocumentSyncKind::FULL,
-                )),
-                 ..ServerCapabilities::default()
+fn main_loop(
+    connection: Connection,
+    params: serde_json::Value,
+) -> Result<(), Box<dyn Error>> {
+    let _params: InitializeParams = serde_json::from_value(params).unwrap();
+    for msg in &connection.receiver {
+        match msg {
+            Message::Request(req) => {
+                if connection.handle_shutdown(&req)? {
+                    return Ok(());
+                }
             }
-        })
-
+            Message::Response(_resp) => {}
+            Message::Notification(notification) => {
+                let uri = &notification.params["textDocument"]["uri"].as_str().unwrap();
+                let contents = &notification.params["contentChanges"][0]["text"].as_str().unwrap();
+                eprintln!("got notification: {contents:?}");
+            }
+        }
     }
 
-    async fn initialized(&self, _: InitializedParams) {
-        OpenOptions::new().write(true).append(true).open("/Users/nick/Documents/ttags/logfile").unwrap().write_all(b"A new line!");
-        self.client
-            .log_message(MessageType::INFO, "server initialized!")
-            .await;
-    }
-
-    async fn shutdown(&self) -> Result<()> {
-        Ok(())
-    }
-
-    async fn did_open(&self, params: DidOpenTextDocumentParams) {
-        self.client
-            .log_message(MessageType::INFO, "file opened!")
-            .await;
-        self.on_change(params.text_document.uri).await
-    }
-
-    async fn did_change(&self, params: DidChangeTextDocumentParams) {
-        println!("{:?}", params);
-        self.on_change(params.text_document.uri).await
-    }
-}
-
-impl Backend {
-    async fn on_change(&self, uri: Url) {
-        self.client
-            .log_message(MessageType::INFO, "on changeeee")
-            .await;
-    }
+    Ok(())
 }
