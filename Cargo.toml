@@ -25,3 +25,6 @@ rayon = "^1.6.1"
 lsp-server = "0.7.0"
 serde_json = "1.0.94"
 lsp-types = "0.94.0"
+
+[build-dependencies]
+clap="^2.31.2"

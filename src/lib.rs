@@ -3,6 +3,7 @@ extern crate clap;
 
 use std::error::Error;
 
+pub mod cli;
 pub mod config;
 pub mod tag;
 pub mod tagger;
