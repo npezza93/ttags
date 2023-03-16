@@ -1,7 +1,9 @@
 use std::error::Error;
 use crate::tagger::Tagger;
 
-use lsp_types::{TextDocumentSyncKind, TextDocumentSyncCapability, TextDocumentSyncSaveOptions, TextDocumentSyncOptions, ServerCapabilities};
+use lsp_types::{TextDocumentSyncKind, TextDocumentSyncCapability};
+use lsp_types::{TextDocumentSyncSaveOptions, TextDocumentSyncOptions};
+use lsp_types::ServerCapabilities;
 use lsp_server::{Connection, Message};
 
 pub struct Lsp {

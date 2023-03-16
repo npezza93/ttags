@@ -59,7 +59,9 @@ impl Config {
     }
 
     pub fn clear_tag_file(&self) {
-        File::create(&self.tag_path).expect("Failed clearing file");
+        if !self.going_to_stdout() {
+            File::create(&self.tag_path).expect("Failed clearing file");
+        }
     }
 
     pub fn current_tag_contents(&self) -> Vec<Tag> {
@@ -74,7 +76,7 @@ impl Config {
             map(Tag::parse).collect()
     }
 
-    fn going_to_stdout(&self) -> bool {
+    pub fn going_to_stdout(&self) -> bool {
         Path::new(&self.tag_path).file_name() == Some(OsStr::new("-"))
     }
 
