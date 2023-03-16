@@ -31,25 +31,29 @@ impl Tagger<'_> {
 
     pub fn run(&mut self, files: &[String]) {
         let tags: Vec<Tag> = files.iter().flat_map(|filename| {
-            match fs::read(filename) {
-                Ok(contents) => {
-                    self.parse(filename, &contents)
-                },
-                Err(_) => {
-                    if self.config.appending() {
-                        vec![]
-                    } else {
-                        println!("{} not found", filename);
-                        exit(1)
-                    }
-                }
-            }
+            self.read_and_parse(filename)
         }).collect();
 
         self.write(tags);
     }
 
-    pub fn parse(&mut self, filename: &str, contents: &[u8]) -> Vec<Tag> {
+    pub fn read_and_parse(&mut self, filename: &str) -> Vec<Tag> {
+        match fs::read(filename) {
+            Ok(contents) => {
+                self.parse(filename, &contents)
+            },
+            Err(_) => {
+                if self.config.appending() {
+                    vec![]
+                } else {
+                    println!("{} not found", filename);
+                    exit(1)
+                }
+            }
+        }
+    }
+
+    fn parse(&mut self, filename: &str, contents: &[u8]) -> Vec<Tag> {
         let path = Path::new(filename);
 
         match path.extension() {

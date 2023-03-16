@@ -1,7 +1,7 @@
 use std::error::Error;
 use crate::tagger::Tagger;
 
-use lsp_types::{TextDocumentSyncKind, TextDocumentSyncCapability, TextDocumentSyncOptions, ServerCapabilities};
+use lsp_types::{TextDocumentSyncKind, TextDocumentSyncCapability, TextDocumentSyncSaveOptions, TextDocumentSyncOptions, ServerCapabilities};
 use lsp_server::{Connection, Message};
 
 pub struct Lsp {
@@ -23,8 +23,7 @@ impl Lsp {
                 Message::Response(_resp) => {}
                 Message::Notification(notification) => {
                     let uri = &notification.params["textDocument"]["uri"].as_str().unwrap();
-                    let contents = notification.params["contentChanges"][0]["text"].as_str().unwrap().as_bytes();
-                    let tags = tagger.parse(&uri[7..uri.len()], contents);
+                    let tags = tagger.read_and_parse(&uri[7..uri.len()]);
 
                     tagger.write(tags);
                 }
@@ -40,10 +39,10 @@ impl Lsp {
         let capabilities = ServerCapabilities {
             text_document_sync: Some(TextDocumentSyncCapability::Options(TextDocumentSyncOptions {
                 open_close: None,
-                change: Some(TextDocumentSyncKind::FULL),
+                change: Some(TextDocumentSyncKind::NONE),
                 will_save: None,
                 will_save_wait_until: None,
-                save: None,
+                save: Some(TextDocumentSyncSaveOptions::Supported(true)),
             })),
             ..Default::default()
         };
