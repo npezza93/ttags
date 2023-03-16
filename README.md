@@ -40,3 +40,6 @@ ttags $(git ls-files)
 
 - `-f` or `--tag-file=file` - Path to the file where tags should be written. If
   `-` is passed, tags are outputted to stdout.
+
+- `lsp` - Starts an LSP server that updates the tags for a file when the file is
+  saved

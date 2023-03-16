@@ -17,7 +17,6 @@ tree-sitter-javascript = ">=0.20"
 tree-sitter-ruby = ">=0.20"
 tree-sitter-rust = ">=0.20"
 Inflector = "*"
-clap="^2.31.2"
 pathdiff = "^0.2.1"
 sugar_path = "^0.0.9"
 walkdir = "^2.3.2"
@@ -28,3 +27,8 @@ lsp-types = "0.94.0"
 
 [build-dependencies]
 clap="^2.31.2"
+
+[dependencies.clap]
+version = "^2.31.2"
+default-features = false
+features = [ "suggestions", "color" ]
