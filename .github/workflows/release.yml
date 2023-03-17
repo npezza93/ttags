@@ -82,6 +82,10 @@ jobs:
         name: artifacts
         path: artifacts
 
+    - name: Install packages (Ubuntu)
+      if: matrix.os == 'ubuntu-latest'
+      run: sudo apt-get install -y musl-tools
+
     - name: Set release upload URL and release version
       shell: bash
       run: |
