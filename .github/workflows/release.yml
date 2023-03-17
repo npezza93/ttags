@@ -84,7 +84,7 @@ jobs:
 
     - name: Install packages (Ubuntu)
       if: matrix.os == 'ubuntu-latest'
-      run: sudo apt-get install -y musl-tools
+      run: sudo apt-get install -y musl-tools musl-g++
 
     - name: Set release upload URL and release version
       shell: bash
