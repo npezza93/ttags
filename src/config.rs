@@ -73,7 +73,7 @@ impl Config {
         reader.read_to_string(&mut contents).unwrap();
 
         contents.trim().split('\n').
-            filter(|line| !line.starts_with("!_")).
+            filter(|line| !line.starts_with("!_") && !line.is_empty()).
             map(Tag::parse).collect()
     }
 
