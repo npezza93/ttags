@@ -234,6 +234,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "npezza93_tree-sitter-tags"
+version = "0.20.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ccb82a7da5aba783b74e74409062d97d78f79e0cdc7b74830aabdced7b90862b"
+dependencies = [
+ "memchr",
+ "regex",
+ "thiserror",
+ "tree-sitter",
+]
+
+[[package]]
 name = "num_cpus"
 version = "1.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -492,17 +504,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "tree-sitter-tags"
-version = "0.20.2"
-source = "git+https://github.com/npezza93/tree-sitter#fb7843424756e243460da5ff83c91f9248e67020"
-dependencies = [
- "memchr",
- "regex",
- "thiserror",
- "tree-sitter",
-]
-
-[[package]]
 name = "ttags"
 version = "0.1.0"
 dependencies = [
@@ -510,6 +511,7 @@ dependencies = [
  "clap",
  "lsp-server",
  "lsp-types",
+ "npezza93_tree-sitter-tags",
  "pathdiff",
  "rayon",
  "serde_json",
@@ -518,7 +520,6 @@ dependencies = [
  "tree-sitter-javascript",
  "tree-sitter-ruby",
  "tree-sitter-rust",
- "tree-sitter-tags",
  "walkdir",
 ]
 

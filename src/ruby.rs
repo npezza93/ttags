@@ -1,4 +1,4 @@
-use tree_sitter_tags::{Tag as TSTag, TagsContext, TagsConfiguration};
+use npezza93_tree_sitter_tags::{Tag as TSTag, TagsContext, TagsConfiguration};
 use tree_sitter::{Parser, QueryCursor, Query};
 use std::str;
 use inflector::string::singularize::to_singular;

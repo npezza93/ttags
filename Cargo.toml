@@ -12,7 +12,7 @@ path = "src/main.rs"
 
 [dependencies]
 tree-sitter = ">=0.20"
-tree-sitter-tags = { git = "https://github.com/npezza93/tree-sitter" }
+npezza93_tree-sitter-tags = ">=0.20"
 tree-sitter-javascript = ">=0.20"
 tree-sitter-ruby = ">=0.20"
 tree-sitter-rust = ">=0.20"

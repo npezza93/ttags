@@ -1,4 +1,4 @@
-use tree_sitter_tags::{TagsContext, TagsConfiguration};
+use npezza93_tree_sitter_tags::{TagsContext, TagsConfiguration};
 use std::io::Write;
 use std::fs;
 use std::path::Path;
