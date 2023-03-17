@@ -5,6 +5,7 @@ authors = ["Nick Pezza <pezza@hey.com>"]
 edition = "2018"
 license-file = "LICENSE"
 repository = "https://github.com/npezza93/ttags"
+description = "Generate ctags using Tree Sitter"
 
 [[bin]]
 name = "ttags"
