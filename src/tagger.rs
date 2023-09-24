@@ -10,12 +10,14 @@ use crate::tag::Tag;
 use crate::ruby;
 use crate::javascript;
 use crate::rust;
+use crate::haskell;
 
 pub struct Tagger<'a> {
     pub context: TagsContext,
     pub ruby_config: TagsConfiguration,
     pub javascript_config: TagsConfiguration,
     pub rust_config: TagsConfiguration,
+    pub haskell_config: TagsConfiguration,
     pub config: &'a Config,
 }
 
@@ -25,8 +27,9 @@ impl Tagger<'_> {
         let ruby_config       = ruby::config();
         let javascript_config = javascript::config();
         let rust_config       = rust::config();
+        let haskell_config                       = haskell::config();
 
-        Tagger { config, context, ruby_config, javascript_config, rust_config }
+        Tagger { config, context, ruby_config, javascript_config, rust_config, haskell_config }
     }
 
     pub fn run(&mut self, files: &[String]) {
@@ -62,6 +65,7 @@ impl Tagger<'_> {
                     Some("rb") => ruby::generate_tags(&mut self.context, &self.ruby_config, filename, contents),
                     Some("js") => javascript::generate_tags(&mut self.context, &self.javascript_config, filename, contents),
                     Some("rs") => rust::generate_tags(&mut self.context, &self.rust_config, filename, contents),
+                    Some("hs") => haskell::generate_tags(&mut self.context, &self.haskell_config, filename, contents),
                     _ => vec![]
                 }
             },

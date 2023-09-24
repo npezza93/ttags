@@ -11,6 +11,7 @@ pub mod lsp;
 pub mod ruby;
 pub mod javascript;
 pub mod rust;
+pub mod haskell;
 
 use config::Config;
 use crate::tagger::Tagger;
