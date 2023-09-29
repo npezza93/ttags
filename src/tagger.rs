@@ -27,7 +27,7 @@ impl Tagger<'_> {
         let ruby_config       = ruby::config();
         let javascript_config = javascript::config();
         let rust_config       = rust::config();
-        let haskell_config                       = haskell::config();
+        let haskell_config    = haskell::config();
 
         Tagger { config, context, ruby_config, javascript_config, rust_config, haskell_config }
     }
