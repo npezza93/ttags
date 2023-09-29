@@ -13,11 +13,15 @@ impl Lsp {
     pub fn run(tagger: &'_ mut Tagger) -> Result<i32, Box<dyn Error>> {
         let (connection, io_threads) = Connection::stdio();
 
+        eprintln!("starting ttags LSP server");
         connection.initialize(Self::server_capabilities())?;
 
         for msg in &connection.receiver {
+            eprintln!("got msg: {msg:?}");
+
             match msg {
                 Message::Request(req) => {
+
                     if connection.handle_shutdown(&req)? {
                         return Ok(0);
                     }
@@ -33,6 +37,7 @@ impl Lsp {
         }
 
         io_threads.join()?;
+        eprintln!("shutting down ttags server");
 
         Ok(0)
     }
