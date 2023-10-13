@@ -485,6 +485,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "tree-sitter-nix"
+version = "0.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ae8c93b7dd2afcd9667daae048135be9ee268e9e3900f4d7d0556a63ec5336b1"
+dependencies = [
+ "cc",
+ "tree-sitter",
+]
+
+[[package]]
 name = "tree-sitter-ruby"
 version = "0.20.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -520,6 +530,7 @@ dependencies = [
  "sugar_path",
  "tree-sitter",
  "tree-sitter-javascript",
+ "tree-sitter-nix",
  "tree-sitter-ruby",
  "tree-sitter-rust",
  "walkdir",
