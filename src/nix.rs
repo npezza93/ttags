@@ -1,4 +1,4 @@
-use npezza93_tree_sitter_tags::{Tag as TSTag, TagsConfiguration, TagsContext};
+use npezza93_tree_sitter_tags::{Tag as TSTag, TagsConfiguration};
 use std::str;
 
 use crate::default_generate_tags;

@@ -3,8 +3,8 @@
 macro_rules! default_generate_tags {
     () => {
         pub fn generate_tags<'a>(
-            context: &'a mut TagsContext,
-            config: &'a TagsConfiguration,
+            context: &'a mut npezza93_tree_sitter_tags::TagsContext,
+            config: &'a npezza93_tree_sitter_tags::TagsConfiguration,
             filename: &'a str,
             contents: &'a [u8],
         ) -> Vec<Tag> {
