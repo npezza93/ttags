@@ -43,3 +43,11 @@ ttags $(git ls-files)
 
 - `lsp` - Starts an LSP server that updates the tags for a file when the file is
   saved
+
+### Supported languages
+
+- [x] Haskell
+- [x] JavaScript
+- [x] Nix
+- [x] Ruby
+- [x] Rust
