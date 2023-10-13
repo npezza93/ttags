@@ -22,12 +22,7 @@ pub fn generate_tags<'a>(
     generate::default_generate_tags(create_tag, context, config, filename, contents)
 }
 
-fn create_tag<'a>(
-    name: &'a str,
-    node_name: &'a str,
-    tag: &'a TSTag,
-    filename: &'a str,
-) -> Tag {
+fn create_tag<'a>(name: &'a str, node_name: &'a str, tag: &'a TSTag, filename: &'a str) -> Tag {
     let row = tag.span.start.row;
 
     let kind = match node_name {

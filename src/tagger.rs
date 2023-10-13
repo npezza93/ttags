@@ -7,11 +7,11 @@ use std::process::exit;
 
 use crate::config::Config;
 use crate::haskell;
+use crate::haskell;
 use crate::javascript;
+use crate::nix;
 use crate::ruby;
 use crate::rust;
-use crate::haskell;
-use crate::nix;
 use crate::tag::Tag;
 
 pub struct Tagger<'a> {
@@ -29,18 +29,18 @@ impl Tagger<'_> {
         let context = TagsContext::new();
         let ruby_config = ruby::config();
         let javascript_config = javascript::config();
-        let rust_config       = rust::config();
-        let haskell_config    = haskell::config();
-        let nix_config        = nix::config();
+        let rust_config = rust::config();
+        let haskell_config = haskell::config();
+        let nix_config = nix::config();
 
-        Tagger { 
+        Tagger {
             config,
             context,
             ruby_config,
             javascript_config,
             rust_config,
             haskell_config,
-            nix_config
+            nix_config,
         }
     }
 
@@ -71,14 +71,18 @@ impl Tagger<'_> {
         let path = Path::new(filename);
 
         match path.extension() {
-            Some(os_str) => {
-                match os_str.to_str() {
-                    Some("rb") => ruby::generate_tags(&mut self.context, &self.ruby_config, filename, contents),
-                    Some("js") => javascript::generate_tags(&mut self.context, &self.javascript_config, filename, contents),
-                    Some("rs") => rust::generate_tags(&mut self.context, &self.rust_config, filename, contents),
-                    Some("hs") => haskell::generate_tags(&mut self.context, &self.haskell_config, filename, contents),
-                    Some("nix") => nix::generate_tags(&mut self.context, &self.nix_config, filename, contents),
-                    _ => vec![]
+            Some(os_str) => match os_str.to_str() {
+                Some("rb") => {
+                    ruby::generate_tags(&mut self.context, &self.ruby_config, filename, contents)
+                }
+                Some("js") => javascript::generate_tags(
+                    &mut self.context,
+                    &self.javascript_config,
+                    filename,
+                    contents,
+                ),
+                Some("rs") => {
+                    rust::generate_tags(&mut self.context, &self.rust_config, filename, contents)
                 }
                 Some("hs") => haskell::generate_tags(
                     &mut self.context,
@@ -86,6 +90,9 @@ impl Tagger<'_> {
                     filename,
                     contents,
                 ),
+                Some("nix") => {
+                    nix::generate_tags(&mut self.context, &self.nix_config, filename, contents)
+                }
                 _ => vec![],
             },
             None => vec![],
