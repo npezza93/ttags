@@ -24,21 +24,3 @@ pub fn default_generate_tags<'a>(
     })
     .collect::<Vec<Tag>>()
 }
-
-pub fn default_create_tag<'a>(
-    name: &'a str,
-    node_name: &'a str,
-    tag: &'a TSTag,
-    filename: &'a str,
-) -> Tag {
-    let row = tag.span.start.row;
-
-    let kind = match node_name {
-        "function" => "f",
-        "class" | "interface" => "c",
-        "module" => "m",
-        _ => node_name,
-    };
-
-    Tag::new(name, filename, row + 1, kind)
-}

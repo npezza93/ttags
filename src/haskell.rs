@@ -22,6 +22,20 @@ pub fn generate_tags<'a>(
     generate::default_generate_tags(create_tag, context, config, filename, contents)
 }
 
-fn create_tag<'a>(name: &'a str, node_name: &'a str, tag: &'a TSTag, filename: &'a str) -> Tag {
-    generate::default_create_tag(name, node_name, tag, filename)
+fn create_tag<'a>(
+    name: &'a str,
+    node_name: &'a str,
+    tag: &'a TSTag,
+    filename: &'a str,
+) -> Tag {
+    let row = tag.span.start.row;
+
+    let kind = match node_name {
+        "function" => "f",
+        "class" | "interface" => "c",
+        "module" => "m",
+        _ => node_name,
+    };
+
+    Tag::new(name, filename, row + 1, kind)
 }
