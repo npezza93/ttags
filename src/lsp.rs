@@ -1,13 +1,12 @@
-use std::error::Error;
 use crate::tagger::Tagger;
+use std::error::Error;
 
-use lsp_types::{TextDocumentSyncKind, TextDocumentSyncCapability};
-use lsp_types::{TextDocumentSyncSaveOptions, TextDocumentSyncOptions};
-use lsp_types::ServerCapabilities;
 use lsp_server::{Connection, Message};
+use lsp_types::ServerCapabilities;
+use lsp_types::{TextDocumentSyncCapability, TextDocumentSyncKind};
+use lsp_types::{TextDocumentSyncOptions, TextDocumentSyncSaveOptions};
 
-pub struct Lsp {
-}
+pub struct Lsp {}
 
 impl Lsp {
     pub fn run(tagger: &'_ mut Tagger) -> Result<i32, Box<dyn Error>> {
@@ -21,7 +20,6 @@ impl Lsp {
 
             match msg {
                 Message::Request(req) => {
-
                     if connection.handle_shutdown(&req)? {
                         return Ok(0);
                     }
@@ -44,13 +42,15 @@ impl Lsp {
 
     fn server_capabilities() -> serde_json::Value {
         let capabilities = ServerCapabilities {
-            text_document_sync: Some(TextDocumentSyncCapability::Options(TextDocumentSyncOptions {
-                open_close: None,
-                change: Some(TextDocumentSyncKind::NONE),
-                will_save: None,
-                will_save_wait_until: None,
-                save: Some(TextDocumentSyncSaveOptions::Supported(true)),
-            })),
+            text_document_sync: Some(TextDocumentSyncCapability::Options(
+                TextDocumentSyncOptions {
+                    open_close: None,
+                    change: Some(TextDocumentSyncKind::NONE),
+                    will_save: None,
+                    will_save_wait_until: None,
+                    save: Some(TextDocumentSyncSaveOptions::Supported(true)),
+                },
+            )),
             ..Default::default()
         };
 

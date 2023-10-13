@@ -1,17 +1,18 @@
-use npezza93_tree_sitter_tags::{TagsContext, TagsConfiguration};
-use std::io::Write;
+use npezza93_tree_sitter_tags::{TagsConfiguration, TagsContext};
+use rayon::prelude::*;
 use std::fs;
+use std::io::Write;
 use std::path::Path;
 use std::process::exit;
-use rayon::prelude::*;
 
 use crate::config::Config;
-use crate::tag::Tag;
-use crate::ruby;
+use crate::haskell;
 use crate::javascript;
+use crate::ruby;
 use crate::rust;
 use crate::haskell;
 use crate::nix;
+use crate::tag::Tag;
 
 pub struct Tagger<'a> {
     pub context: TagsContext,
@@ -25,8 +26,8 @@ pub struct Tagger<'a> {
 
 impl Tagger<'_> {
     pub fn new(config: &'_ Config) -> Tagger<'_> {
-        let context       = TagsContext::new();
-        let ruby_config       = ruby::config();
+        let context = TagsContext::new();
+        let ruby_config = ruby::config();
         let javascript_config = javascript::config();
         let rust_config       = rust::config();
         let haskell_config    = haskell::config();
@@ -44,18 +45,17 @@ impl Tagger<'_> {
     }
 
     pub fn run(&mut self, files: &[String]) {
-        let tags: Vec<Tag> = files.iter().flat_map(|filename| {
-            self.read_and_parse(filename)
-        }).collect();
+        let tags: Vec<Tag> = files
+            .iter()
+            .flat_map(|filename| self.read_and_parse(filename))
+            .collect();
 
         self.write(tags);
     }
 
     pub fn read_and_parse(&mut self, filename: &str) -> Vec<Tag> {
         match fs::read(filename) {
-            Ok(contents) => {
-                self.parse(filename, &contents)
-            },
+            Ok(contents) => self.parse(filename, &contents),
             Err(_) => {
                 if self.config.appending() {
                     vec![]
@@ -80,17 +80,29 @@ impl Tagger<'_> {
                     Some("nix") => nix::generate_tags(&mut self.context, &self.nix_config, filename, contents),
                     _ => vec![]
                 }
+                Some("hs") => haskell::generate_tags(
+                    &mut self.context,
+                    &self.haskell_config,
+                    filename,
+                    contents,
+                ),
+                _ => vec![],
             },
-            None => vec![]
+            None => vec![],
         }
     }
 
     pub fn write(&mut self, mut tags: Vec<Tag>) {
         let mut output = self.config.output();
         if self.config.appending() {
-            tags.extend(self.config.current_tag_contents().iter().filter(|tag| {
-                !self.config.files.contains(&tag.filename)
-            }).cloned().collect::<Vec<Tag>>());
+            tags.extend(
+                self.config
+                    .current_tag_contents()
+                    .iter()
+                    .filter(|tag| !self.config.files.contains(&tag.filename))
+                    .cloned()
+                    .collect::<Vec<Tag>>(),
+            );
         }
 
         self.config.clear_tag_file();
@@ -98,10 +110,11 @@ impl Tagger<'_> {
 
         if !self.config.going_to_stdout() {
             output.write_all("!_TAG_FILE_FORMAT\t2\t/extended format; --format=1 will not append ;\" to lines/\n".as_bytes()).unwrap();
-            output.write_all("!_TAG_FILE_SORTED\t1\t/0=unsorted, 1=sorted, 2=foldcase/\n".as_bytes()).unwrap();
+            output
+                .write_all("!_TAG_FILE_SORTED\t1\t/0=unsorted, 1=sorted, 2=foldcase/\n".as_bytes())
+                .unwrap();
         }
-        tags.iter().for_each(|tag| {
-            output.write_all(&tag.as_bytes(self.config)).unwrap()
-        });
+        tags.iter()
+            .for_each(|tag| output.write_all(&tag.as_bytes(self.config)).unwrap());
     }
 }
