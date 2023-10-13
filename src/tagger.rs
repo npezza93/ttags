@@ -77,7 +77,7 @@ impl Tagger<'_> {
                     Some("js") => javascript::generate_tags(&mut self.context, &self.javascript_config, filename, contents),
                     Some("rs") => rust::generate_tags(&mut self.context, &self.rust_config, filename, contents),
                     Some("hs") => haskell::generate_tags(&mut self.context, &self.haskell_config, filename, contents),
-                    Some("nix") => nix::generate_tags(&mut self.context, &self.haskell_config, filename, contents),
+                    Some("nix") => nix::generate_tags(&mut self.context, &self.nix_config, filename, contents),
                     _ => vec![]
                 }
             },
