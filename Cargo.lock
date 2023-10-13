@@ -515,6 +515,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "tree-sitter-swift"
+version = "0.3.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "eee2dbeb101a88a1d9e4883e3fbda6c799cf676f6a1cf59e4fc3862e67e70118"
+dependencies = [
+ "cc",
+ "tree-sitter",
+]
+
+[[package]]
 name = "ttags"
 version = "0.2.1"
 dependencies = [
@@ -533,6 +543,7 @@ dependencies = [
  "tree-sitter-nix",
  "tree-sitter-ruby",
  "tree-sitter-rust",
+ "tree-sitter-swift",
  "walkdir",
 ]
 
