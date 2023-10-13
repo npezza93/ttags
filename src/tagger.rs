@@ -7,7 +7,6 @@ use std::process::exit;
 
 use crate::config::Config;
 use crate::haskell;
-use crate::haskell;
 use crate::javascript;
 use crate::nix;
 use crate::ruby;
