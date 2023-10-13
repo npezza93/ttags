@@ -6,9 +6,9 @@ use crate::tag::Tag;
 
 pub fn config() -> TagsConfiguration {
     TagsConfiguration::new(
-        tree_sitter_javascript::language(),
-        include_str!("../javascript/tags.scm"),
-        tree_sitter_javascript::LOCALS_QUERY,
+        tree_sitter_nix::language(),
+        include_str!("../nix/tags.scm"),
+        "",
     )
     .unwrap()
 }
@@ -26,7 +26,7 @@ fn create_tag<'a>(name: &'a str, node_name: &'a str, tag: &'a TSTag, filename: &
     let row = tag.span.start.row;
 
     let kind = match node_name {
-        "method" | "function" => "f",
+        "function" => "f",
         "class" => "c",
         _ => node_name,
     };

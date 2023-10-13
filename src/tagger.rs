@@ -8,6 +8,7 @@ use std::process::exit;
 use crate::config::Config;
 use crate::haskell;
 use crate::javascript;
+use crate::nix;
 use crate::ruby;
 use crate::rust;
 use crate::tag::Tag;
@@ -18,6 +19,7 @@ pub struct Tagger<'a> {
     pub javascript_config: TagsConfiguration,
     pub rust_config: TagsConfiguration,
     pub haskell_config: TagsConfiguration,
+    pub nix_config: TagsConfiguration,
     pub config: &'a Config,
 }
 
@@ -28,6 +30,7 @@ impl Tagger<'_> {
         let javascript_config = javascript::config();
         let rust_config = rust::config();
         let haskell_config = haskell::config();
+        let nix_config = nix::config();
 
         Tagger {
             config,
@@ -36,6 +39,7 @@ impl Tagger<'_> {
             javascript_config,
             rust_config,
             haskell_config,
+            nix_config,
         }
     }
 
@@ -85,6 +89,9 @@ impl Tagger<'_> {
                     filename,
                     contents,
                 ),
+                Some("nix") => {
+                    nix::generate_tags(&mut self.context, &self.nix_config, filename, contents)
+                }
                 _ => vec![],
             },
             None => vec![],
