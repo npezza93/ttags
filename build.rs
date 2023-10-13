@@ -1,9 +1,9 @@
 #[macro_use]
 extern crate clap;
 
+use clap::Shell;
 use std::env;
 use std::path::PathBuf;
-use clap::Shell;
 
 include!("src/cli.rs");
 
