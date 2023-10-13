@@ -19,6 +19,6 @@ macro_rules! default_generate_tags {
                 vec![create_tag(original_name, node_name, &tag, filename)]
             })
             .collect::<Vec<Tag>>()
-            }
-    }
+        }
+    };
 }
