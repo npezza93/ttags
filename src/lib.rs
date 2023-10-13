@@ -5,17 +5,17 @@ use std::error::Error;
 
 pub mod cli;
 pub mod config;
-pub mod tag;
-pub mod tagger;
+pub mod haskell;
+pub mod javascript;
 pub mod lsp;
 pub mod ruby;
-pub mod javascript;
 pub mod rust;
-pub mod haskell;
+pub mod tag;
+pub mod tagger;
 
-use config::Config;
-use crate::tagger::Tagger;
 use crate::lsp::Lsp;
+use crate::tagger::Tagger;
+use config::Config;
 
 pub struct App {}
 
