@@ -1,7 +1,7 @@
 use npezza93_tree_sitter_tags::{Tag as TSTag, TagsConfiguration, TagsContext};
 use std::str;
 
-use crate::generate;
+use crate::default_generate_tags;
 use crate::tag::Tag;
 
 pub fn config() -> TagsConfiguration {
@@ -13,14 +13,7 @@ pub fn config() -> TagsConfiguration {
     .unwrap()
 }
 
-pub fn generate_tags<'a>(
-    context: &'a mut TagsContext,
-    config: &'a TagsConfiguration,
-    filename: &'a str,
-    contents: &'a [u8],
-) -> Vec<Tag> {
-    generate::default_generate_tags(create_tag, context, config, filename, contents)
-}
+default_generate_tags!();
 
 fn create_tag<'a>(name: &'a str, node_name: &'a str, tag: &'a TSTag, filename: &'a str) -> Tag {
     let row = tag.span.start.row;
