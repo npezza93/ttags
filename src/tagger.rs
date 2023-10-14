@@ -11,6 +11,7 @@ use crate::javascript;
 use crate::nix;
 use crate::ruby;
 use crate::rust;
+use crate::swift;
 use crate::tag::Tag;
 
 pub struct Tagger<'a> {
@@ -20,6 +21,7 @@ pub struct Tagger<'a> {
     pub rust_config: TagsConfiguration,
     pub haskell_config: TagsConfiguration,
     pub nix_config: TagsConfiguration,
+    pub swift_config: TagsConfiguration,
     pub config: &'a Config,
 }
 
@@ -31,6 +33,7 @@ impl Tagger<'_> {
         let rust_config = rust::config();
         let haskell_config = haskell::config();
         let nix_config = nix::config();
+        let swift_config = swift::config();
 
         Tagger {
             config,
@@ -40,6 +43,7 @@ impl Tagger<'_> {
             rust_config,
             haskell_config,
             nix_config,
+            swift_config,
         }
     }
 
@@ -91,6 +95,9 @@ impl Tagger<'_> {
                 ),
                 Some("nix") => {
                     nix::generate_tags(&mut self.context, &self.nix_config, filename, contents)
+                }
+                Some("swift") => {
+                    swift::generate_tags(&mut self.context, &self.swift_config, filename, contents)
                 }
                 _ => vec![],
             },

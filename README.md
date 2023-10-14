@@ -51,3 +51,4 @@ ttags $(git ls-files)
 - [x] Nix
 - [x] Ruby
 - [x] Rust
+- [x] Swift
