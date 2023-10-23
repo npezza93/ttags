@@ -1,2 +1,5 @@
 /target
 tags
+/result
+.no-pre-commit
+.direnv
