@@ -4,6 +4,8 @@ ttags generates ctags using [Tree-sitter](https://github.com/tree-sitter/tree-si
 
 ### Installation
 
+[![Packaging status](https://repology.org/badge/vertical-allrepos/ttags.svg)](https://repology.org/project/ttags/versions)
+
 ##### macOS and Linux
 
 ```bash
