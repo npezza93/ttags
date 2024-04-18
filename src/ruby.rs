@@ -9,9 +9,9 @@ const DELEGATE_SCHEMA: &str = include_str!("../ruby/delegate.scm");
 
 pub fn config() -> TagsConfiguration {
     TagsConfiguration::new(
-        tree_sitter_ruby::language(),
+        npezza93_tree_sitter_ruby::language(),
         include_str!("../ruby/tags.scm"),
-        tree_sitter_ruby::LOCALS_QUERY,
+        npezza93_tree_sitter_ruby::LOCALS_QUERY,
     )
     .unwrap()
 }
@@ -138,11 +138,11 @@ fn name_override<'a>(node_name: &'a str, original_name: &'a str, tag_name: &'a [
 fn delegate_name<'a>(parsed_name: &'a str, docs: &'a [u8]) -> String {
     let mut parser = Parser::new();
     let mut cursor = QueryCursor::new();
-    parser.set_language(tree_sitter_ruby::language()).unwrap();
+    parser.set_language(&npezza93_tree_sitter_ruby::language()).unwrap();
     parser.reset();
 
     let tree = parser.parse(docs, None).unwrap();
-    let query = Query::new(tree_sitter_ruby::language(), DELEGATE_SCHEMA).unwrap();
+    let query = Query::new(&npezza93_tree_sitter_ruby::language(), DELEGATE_SCHEMA).unwrap();
 
     let mut matches = cursor.matches(&query, tree.root_node(), docs);
 
