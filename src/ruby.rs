@@ -138,7 +138,9 @@ fn name_override<'a>(node_name: &'a str, original_name: &'a str, tag_name: &'a [
 fn delegate_name<'a>(parsed_name: &'a str, docs: &'a [u8]) -> String {
     let mut parser = Parser::new();
     let mut cursor = QueryCursor::new();
-    parser.set_language(&npezza93_tree_sitter_ruby::language()).unwrap();
+    parser
+        .set_language(&npezza93_tree_sitter_ruby::language())
+        .unwrap();
     parser.reset();
 
     let tree = parser.parse(docs, None).unwrap();
