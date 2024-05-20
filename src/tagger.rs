@@ -1,5 +1,6 @@
 use npezza93_tree_sitter_tags::{TagsConfiguration, TagsContext};
 use rayon::prelude::*;
+use regex::Regex;
 use std::fs;
 use std::io::Write;
 use std::path::Path;
@@ -74,7 +75,34 @@ impl Tagger<'_> {
         let path = Path::new(filename);
 
         match path.extension() {
-            Some(os_str) => match os_str.to_str() {
+            Some(os_str) => {
+                self.type_mapping(os_str.to_str(), filename, contents)
+            },
+            None => {
+                let regex = Regex::new(r"^#!\s*/usr/bin/env\s+(?P<command>.*)").unwrap();
+                let str_slice = std::str::from_utf8(contents).unwrap();
+
+                match regex.captures(str_slice) {
+                    Some(regex_match) => {
+                        match regex_match.name("command") {
+                            Some(command) => {
+                                if command.as_str() == "ruby" {
+                                    self.type_mapping(Some("rb"), filename, contents)
+                                } else {
+                                    vec![]
+                                }
+                            },
+                            None => vec![],
+                        }
+                    },
+                    None => vec![]
+                }
+            }
+        }
+    }
+
+    fn type_mapping(&mut self, kind: Option<&str>, filename: &str, contents: &[u8]) -> Vec<Tag> {
+        return match kind {
                 Some("rb") => {
                     ruby::generate_tags(&mut self.context, &self.ruby_config, filename, contents)
                 }
@@ -100,9 +128,7 @@ impl Tagger<'_> {
                     swift::generate_tags(&mut self.context, &self.swift_config, filename, contents)
                 }
                 _ => vec![],
-            },
-            None => vec![],
-        }
+            }
     }
 
     pub fn write(&mut self, mut tags: Vec<Tag>) {

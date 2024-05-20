@@ -500,6 +500,7 @@ dependencies = [
  "npezza93_tree-sitter-tags",
  "pathdiff",
  "rayon",
+ "regex",
  "serde_json",
  "sugar_path",
  "tree-sitter",
