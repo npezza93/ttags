@@ -6,7 +6,7 @@ use crate::tag::Tag;
 
 pub fn config() -> TagsConfiguration {
     TagsConfiguration::new(
-        npezza93_tree_sitter_haskell::language(),
+        tree_sitter_haskell::language(),
         include_str!("../haskell/tags.scm"),
         "",
     )

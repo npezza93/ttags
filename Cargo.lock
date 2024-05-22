@@ -49,9 +49,9 @@ checksum = "bef38d45163c2f1dde094a7dfd33ccf595c92905c8f8f4fdc18d06fb1037718a"
 
 [[package]]
 name = "cc"
-version = "1.0.94"
+version = "1.0.98"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "17f6e324229dc011159fcc089755d1e2e216a90d43a7dea6853ca740b84f35e7"
+checksum = "41c270e7540d725e65ac7f1b212ac8ce349719624d7bcff99f8e2e488e8cf03f"
 
 [[package]]
 name = "clap"
@@ -190,16 +190,6 @@ name = "memchr"
 version = "2.7.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6c8640c5d730cb13ebd907d8d04b52f55ac9a2eec55b440c8892f40d56c76c1d"
-
-[[package]]
-name = "npezza93-tree-sitter-haskell"
-version = "0.15.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cd44dfc09a37bafbed1c28622c662be9b8fb1aaaad0444688370eae11e3d54b0"
-dependencies = [
- "cc",
- "tree-sitter",
-]
 
 [[package]]
 name = "npezza93-tree-sitter-nix"
@@ -466,6 +456,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "tree-sitter-haskell"
+version = "0.21.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ef25a7e6c73cc1cbe0c0b7dbd5406e7b3485b370bd61c5d8d852ae0781f9bf9a"
+dependencies = [
+ "cc",
+ "tree-sitter",
+]
+
+[[package]]
 name = "tree-sitter-javascript"
 version = "0.21.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -493,7 +493,6 @@ dependencies = [
  "clap",
  "lsp-server",
  "lsp-types",
- "npezza93-tree-sitter-haskell",
  "npezza93-tree-sitter-nix",
  "npezza93-tree-sitter-ruby",
  "npezza93-tree-sitter-swift",
@@ -504,6 +503,7 @@ dependencies = [
  "serde_json",
  "sugar_path",
  "tree-sitter",
+ "tree-sitter-haskell",
  "tree-sitter-javascript",
  "tree-sitter-rust",
  "walkdir",

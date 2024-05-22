@@ -1,35 +1,34 @@
 ; ADT definitions
-(adt
-    name: (type) @name) @definition.class
+(data_type
+    name: (_) @name) @definition.class
 
 ; Type family definitions
 (type_family
-    (_
-        name: (type) @name)) @definition.class
+    name: (_) @name) @definition.class
 
 ; ADT constructor definitions
-(constructors
+(data_constructors
     (data_constructor
-      (constructor) @name) @definition.function)
+      (prefix name: (_) @name) @definition.function))
 
-(constructors
-    (data_constructor_record
-      (constructor) @name) @definition.function)
+; Record constructor definitions
+((record
+    constructor: (constructor) @name) @definition.function)
 
 ; GADT constructor definitions
 
-(adt
+(gadt_constructors
     (gadt_constructor
       (constructor) @name) @definition.function)
 
 ; Record field definitions
-(record_fields
+(record
     (field
       (variable) @name) @definition.function)
 
-; Type alias definitions
-(type_alias
-    name: (type) @name) @definition.class
+; Type synonym definitions
+(type_synomym
+    name: (_) @name) @definition.class
 
 ; Function definitions
 (function
@@ -40,9 +39,8 @@
 
 ; Class definitions
 (class
-    (_
-      class: (class_name) @name)) @definition.interface
+    name: (_) @name) @definition.interface
 
 ; Module definitions
-(_
+(header
     module: (module) @name) @definition.module
