@@ -78,27 +78,26 @@ impl Tagger<'_> {
             Ok(metadata) => {
                 if metadata.is_file() {
                     match path.extension() {
-                        Some(os_str) => {
-                            self.type_mapping(os_str.to_str(), filename, contents)
-                        },
+                        Some(os_str) => self.type_mapping(os_str.to_str(), filename, contents),
                         None => {
-                            let regex = Regex::new(r"^#!\s*/usr/bin/env\s+(?P<command>.*)").unwrap();
-                            let str_slice = std::str::from_utf8(contents).unwrap();
+                            let regex =
+                                Regex::new(r"^#!\s*/usr/bin/env\s+(?P<command>.*)").unwrap();
 
-                            match regex.captures(str_slice) {
-                                Some(regex_match) => {
-                                    match regex_match.name("command") {
+                            match std::str::from_utf8(contents) {
+                                Ok(str_slice) => match regex.captures(str_slice) {
+                                    Some(regex_match) => match regex_match.name("command") {
                                         Some(command) => {
                                             if command.as_str() == "ruby" {
                                                 self.type_mapping(Some("rb"), filename, contents)
                                             } else {
                                                 vec![]
                                             }
-                                        },
+                                        }
                                         None => vec![],
-                                    }
+                                    },
+                                    None => vec![],
                                 },
-                                None => vec![]
+                                Err(_) => vec![],
                             }
                         }
                     }
@@ -114,32 +113,29 @@ impl Tagger<'_> {
 
     fn type_mapping(&mut self, kind: Option<&str>, filename: &str, contents: &[u8]) -> Vec<Tag> {
         return match kind {
-                Some("rb") => {
-                    ruby::generate_tags(&mut self.context, &self.ruby_config, filename, contents)
-                }
-                Some("js") => javascript::generate_tags(
-                    &mut self.context,
-                    &self.javascript_config,
-                    filename,
-                    contents,
-                ),
-                Some("rs") => {
-                    rust::generate_tags(&mut self.context, &self.rust_config, filename, contents)
-                }
-                Some("hs") => haskell::generate_tags(
-                    &mut self.context,
-                    &self.haskell_config,
-                    filename,
-                    contents,
-                ),
-                Some("nix") => {
-                    nix::generate_tags(&mut self.context, &self.nix_config, filename, contents)
-                }
-                Some("swift") => {
-                    swift::generate_tags(&mut self.context, &self.swift_config, filename, contents)
-                }
-                _ => vec![],
+            Some("rb") => {
+                ruby::generate_tags(&mut self.context, &self.ruby_config, filename, contents)
             }
+            Some("js") => javascript::generate_tags(
+                &mut self.context,
+                &self.javascript_config,
+                filename,
+                contents,
+            ),
+            Some("rs") => {
+                rust::generate_tags(&mut self.context, &self.rust_config, filename, contents)
+            }
+            Some("hs") => {
+                haskell::generate_tags(&mut self.context, &self.haskell_config, filename, contents)
+            }
+            Some("nix") => {
+                nix::generate_tags(&mut self.context, &self.nix_config, filename, contents)
+            }
+            Some("swift") => {
+                swift::generate_tags(&mut self.context, &self.swift_config, filename, contents)
+            }
+            _ => vec![],
+        };
     }
 
     pub fn write(&mut self, mut tags: Vec<Tag>) {
