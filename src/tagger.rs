@@ -112,7 +112,7 @@ impl Tagger<'_> {
     }
 
     fn type_mapping(&mut self, kind: Option<&str>, filename: &str, contents: &[u8]) -> Vec<Tag> {
-        return match kind {
+        match kind {
             Some("rb") => {
                 ruby::generate_tags(&mut self.context, &self.ruby_config, filename, contents)
             }
@@ -135,7 +135,7 @@ impl Tagger<'_> {
                 swift::generate_tags(&mut self.context, &self.swift_config, filename, contents)
             }
             _ => vec![],
-        };
+        }
     }
 
     pub fn write(&mut self, mut tags: Vec<Tag>) {
