@@ -74,29 +74,40 @@ impl Tagger<'_> {
     fn parse(&mut self, filename: &str, contents: &[u8]) -> Vec<Tag> {
         let path = Path::new(filename);
 
-        match path.extension() {
-            Some(os_str) => {
-                self.type_mapping(os_str.to_str(), filename, contents)
-            },
-            None => {
-                let regex = Regex::new(r"^#!\s*/usr/bin/env\s+(?P<command>.*)").unwrap();
-                let str_slice = std::str::from_utf8(contents).unwrap();
+        match fs::metadata(path) {
+            Ok(metadata) => {
+                if metadata.is_file() {
+                    match path.extension() {
+                        Some(os_str) => {
+                            self.type_mapping(os_str.to_str(), filename, contents)
+                        },
+                        None => {
+                            let regex = Regex::new(r"^#!\s*/usr/bin/env\s+(?P<command>.*)").unwrap();
+                            let str_slice = std::str::from_utf8(contents).unwrap();
 
-                match regex.captures(str_slice) {
-                    Some(regex_match) => {
-                        match regex_match.name("command") {
-                            Some(command) => {
-                                if command.as_str() == "ruby" {
-                                    self.type_mapping(Some("rb"), filename, contents)
-                                } else {
-                                    vec![]
-                                }
-                            },
-                            None => vec![],
+                            match regex.captures(str_slice) {
+                                Some(regex_match) => {
+                                    match regex_match.name("command") {
+                                        Some(command) => {
+                                            if command.as_str() == "ruby" {
+                                                self.type_mapping(Some("rb"), filename, contents)
+                                            } else {
+                                                vec![]
+                                            }
+                                        },
+                                        None => vec![],
+                                    }
+                                },
+                                None => vec![]
+                            }
                         }
-                    },
-                    None => vec![]
+                    }
+                } else {
+                    vec![]
                 }
+            }
+            Err(_e) => {
+                vec![]
             }
         }
     }
