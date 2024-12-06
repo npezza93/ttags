@@ -2,6 +2,7 @@ use inflector::string::singularize::to_singular;
 use npezza93_tree_sitter_tags::{Tag as TSTag, TagsConfiguration, TagsContext};
 use std::str;
 use tree_sitter::{Parser, Query, QueryCursor};
+use streaming_iterator::StreamingIterator;
 
 use crate::tag::Tag;
 
@@ -9,9 +10,9 @@ const DELEGATE_SCHEMA: &str = include_str!("../ruby/delegate.scm");
 
 pub fn config() -> TagsConfiguration {
     TagsConfiguration::new(
-        npezza93_tree_sitter_ruby::language(),
+        tree_sitter_ruby::LANGUAGE.into(),
         include_str!("../ruby/tags.scm"),
-        npezza93_tree_sitter_ruby::LOCALS_QUERY,
+        tree_sitter_ruby::LOCALS_QUERY,
     )
     .unwrap()
 }
@@ -139,18 +140,26 @@ fn delegate_name<'a>(parsed_name: &'a str, docs: &'a [u8]) -> String {
     let mut parser = Parser::new();
     let mut cursor = QueryCursor::new();
     parser
-        .set_language(&npezza93_tree_sitter_ruby::language())
+        .set_language(&tree_sitter_ruby::LANGUAGE.into())
         .unwrap();
     parser.reset();
 
     let tree = parser.parse(docs, None).unwrap();
-    let query = Query::new(&npezza93_tree_sitter_ruby::language(), DELEGATE_SCHEMA).unwrap();
+    let query = Query::new(&tree_sitter_ruby::LANGUAGE.into(), DELEGATE_SCHEMA).unwrap();
 
     let mut matches = cursor.matches(&query, tree.root_node(), docs);
 
-    let name = if let Some(matchy) = matches.next() {
-        if let Some(_prefix_match) = matches.next() {
-            let prefix = matchy.captures[1].node.utf8_text(docs).unwrap().to_owned();
+    let mut is_match = false;
+    let mut matchy1 = None;
+    if let Some(matchy) = matches.next() {
+        is_match = true;
+        matchy1 = Some(matchy.captures[1])
+    };
+    let is_prefix_match = matches.next().is_some();
+
+    let name = if is_match {
+        if is_prefix_match {
+            let prefix = matchy1.unwrap().node.utf8_text(docs).unwrap().to_owned();
 
             prefix[1..prefix.len()].to_string() + "_" + parsed_name
         } else {

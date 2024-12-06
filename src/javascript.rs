@@ -6,7 +6,7 @@ use crate::tag::Tag;
 
 pub fn config() -> TagsConfiguration {
     TagsConfiguration::new(
-        tree_sitter_javascript::language(),
+        tree_sitter_javascript::LANGUAGE.into(),
         include_str!("../javascript/tags.scm"),
         tree_sitter_javascript::LOCALS_QUERY,
     )

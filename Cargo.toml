@@ -13,9 +13,9 @@ path = "src/main.rs"
 
 [dependencies]
 tree-sitter = ">=0.20"
-npezza93_tree-sitter-tags = ">=0.20.2"
+npezza93_tree-sitter-tags = ">=0.21.2"
 tree-sitter-javascript = ">=0.20"
-npezza93-tree-sitter-ruby = ">=0.20"
+tree-sitter-ruby = ">=0.20"
 tree-sitter-rust = ">=0.20"
 tree-sitter-haskell = ">=0.21"
 npezza93-tree-sitter-nix = ">=0.0.2"
@@ -28,7 +28,9 @@ lsp-server = "^0.7.0"
 serde_json = "^1.0.94"
 lsp-types = "^0.94.0"
 npezza93-tree-sitter-swift = "^0.4.4"
-regex = "1.10.4"
+regex = "^1.10"
+streaming-iterator = "0.1.9"
+tree-sitter-language = "0.1.0"
 
 [build-dependencies]
 clap="^2.31.2"
