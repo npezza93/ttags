@@ -2,7 +2,7 @@
 name = "ttags"
 version = "0.4.2"
 authors = ["Nick Pezza <pezza@hey.com>"]
-edition = "2021"
+edition = "2024"
 license-file = "LICENSE"
 repository = "https://github.com/npezza93/ttags"
 description = "Generate ctags using Tree Sitter"
