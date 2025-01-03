@@ -343,22 +343,13 @@ checksum = "78ca9ab1a0babb1e7d5695e3530886289c18cf2f87ec19a575a0abdce112e3a3"
 
 [[package]]
 name = "npezza93-tree-sitter-nix"
-version = "0.0.2"
+version = "0.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0398a0cd89e29f25d2f2141b05020e475907e39f7e5886f77f528f862586d13b"
+checksum = "6361a92f53e370f3efaccbc4abdd32ba7290f18c5d79a8949d12392398010122"
 dependencies = [
  "cc",
  "tree-sitter",
-]
-
-[[package]]
-name = "npezza93-tree-sitter-swift"
-version = "0.4.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "67dc0966a8d9123ce829cececfa64f46cb07accba603c340eb74626f6d42f2c8"
-dependencies = [
- "cc",
- "tree-sitter",
+ "tree-sitter-language",
 ]
 
 [[package]]
@@ -677,6 +668,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "tree-sitter-swift"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d65aeb41726119416567d0333ec17580ac4abfb96db1f67c4bd638c65f9992fe"
+dependencies = [
+ "cc",
+ "tree-sitter-language",
+]
+
+[[package]]
 name = "ttags"
 version = "0.4.2"
 dependencies = [
@@ -685,7 +686,6 @@ dependencies = [
  "lsp-server",
  "lsp-types",
  "npezza93-tree-sitter-nix",
- "npezza93-tree-sitter-swift",
  "npezza93_tree-sitter-tags",
  "pathdiff",
  "rayon",
@@ -699,6 +699,7 @@ dependencies = [
  "tree-sitter-language",
  "tree-sitter-ruby",
  "tree-sitter-rust",
+ "tree-sitter-swift",
  "walkdir",
 ]
 

@@ -6,7 +6,7 @@ use crate::tag::Tag;
 
 pub fn config() -> TagsConfiguration {
     TagsConfiguration::new(
-        npezza93_tree_sitter_swift::language(),
+        tree_sitter_swift::LANGUAGE.into(),
         include_str!("../swift/tags.scm"),
         "",
     )
