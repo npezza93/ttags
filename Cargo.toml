@@ -1,6 +1,6 @@
 [package]
 name = "ttags"
-version = "0.4.2"
+version = "0.4.3"
 authors = ["Nick Pezza <pezza@hey.com>"]
 edition = "2024"
 license-file = "LICENSE"
