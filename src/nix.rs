@@ -6,7 +6,7 @@ use crate::tag::Tag;
 
 pub fn config() -> TagsConfiguration {
     TagsConfiguration::new(
-        npezza93_tree_sitter_nix::LANGUAGE.into(),
+        tree_sitter_nix::LANGUAGE.into(),
         include_str!("../nix/tags.scm"),
         "",
     )
