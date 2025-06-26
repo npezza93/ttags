@@ -7,6 +7,7 @@ use std::path::Path;
 use std::process::exit;
 
 use crate::config::Config;
+use crate::d;
 use crate::haskell;
 use crate::javascript;
 use crate::nix;
@@ -17,6 +18,7 @@ use crate::tag::Tag;
 
 pub struct Tagger<'a> {
     pub context: TagsContext,
+    pub d_config: TagsConfiguration,
     pub ruby_config: TagsConfiguration,
     pub javascript_config: TagsConfiguration,
     pub rust_config: TagsConfiguration,
@@ -29,6 +31,7 @@ pub struct Tagger<'a> {
 impl Tagger<'_> {
     pub fn new(config: &'_ Config) -> Tagger<'_> {
         let context = TagsContext::new();
+        let d_config = d::config();
         let ruby_config = ruby::config();
         let javascript_config = javascript::config();
         let rust_config = rust::config();
@@ -39,6 +42,7 @@ impl Tagger<'_> {
         Tagger {
             config,
             context,
+            d_config,
             ruby_config,
             javascript_config,
             rust_config,
@@ -113,9 +117,12 @@ impl Tagger<'_> {
 
     fn type_mapping(&mut self, kind: Option<&str>, filename: &str, contents: &[u8]) -> Vec<Tag> {
         match kind {
+            Some("d") => {
+                d::generate_tags(&mut self.context, &self.d_config, filename, contents)
+            },
             Some("rb") => {
                 ruby::generate_tags(&mut self.context, &self.ruby_config, filename, contents)
-            }
+            },
             Some("js") => javascript::generate_tags(
                 &mut self.context,
                 &self.javascript_config,

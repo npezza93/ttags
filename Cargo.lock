@@ -635,6 +635,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "tree-sitter-d"
+version = "0.8.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "66c6fa0082e20747a92c5c863cadb7775fbe344f212837f03fc0f7187adf6fd1"
+dependencies = [
+ "cc",
+ "tree-sitter-language",
+]
+
+[[package]]
 name = "tree-sitter-haskell"
 version = "0.23.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -716,6 +726,7 @@ dependencies = [
  "streaming-iterator",
  "sugar_path",
  "tree-sitter",
+ "tree-sitter-d",
  "tree-sitter-haskell",
  "tree-sitter-javascript",
  "tree-sitter-language",
