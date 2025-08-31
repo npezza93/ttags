@@ -6,6 +6,7 @@ use std::io::Write;
 use std::path::Path;
 use std::process::exit;
 
+use crate::c;
 use crate::config::Config;
 use crate::haskell;
 use crate::javascript;
@@ -23,6 +24,7 @@ pub struct Tagger<'a> {
     pub haskell_config: TagsConfiguration,
     pub nix_config: TagsConfiguration,
     pub swift_config: TagsConfiguration,
+    pub c_config: TagsConfiguration,
     pub config: &'a Config,
 }
 
@@ -35,6 +37,7 @@ impl Tagger<'_> {
         let haskell_config = haskell::config();
         let nix_config = nix::config();
         let swift_config = swift::config();
+        let c_config = c::config();
 
         Tagger {
             config,
@@ -45,6 +48,7 @@ impl Tagger<'_> {
             haskell_config,
             nix_config,
             swift_config,
+            c_config,
         }
     }
 
@@ -133,6 +137,9 @@ impl Tagger<'_> {
             }
             Some("swift") => {
                 swift::generate_tags(&mut self.context, &self.swift_config, filename, contents)
+            }
+            Some("c") | Some("h") | Some("i") => {
+                c::generate_tags(&mut self.context, &self.c_config, filename, contents)
             }
             _ => vec![],
         }
