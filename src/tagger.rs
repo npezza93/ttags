@@ -8,6 +8,7 @@ use std::process::exit;
 
 use crate::c;
 use crate::config::Config;
+use crate::cpp;
 use crate::haskell;
 use crate::javascript;
 use crate::nix;
@@ -25,6 +26,7 @@ pub struct Tagger<'a> {
     pub nix_config: TagsConfiguration,
     pub swift_config: TagsConfiguration,
     pub c_config: TagsConfiguration,
+    pub cpp_config: TagsConfiguration,
     pub config: &'a Config,
 }
 
@@ -38,6 +40,7 @@ impl Tagger<'_> {
         let nix_config = nix::config();
         let swift_config = swift::config();
         let c_config = c::config();
+        let cpp_config = cpp::config();
 
         Tagger {
             config,
@@ -49,6 +52,7 @@ impl Tagger<'_> {
             nix_config,
             swift_config,
             c_config,
+            cpp_config,
         }
     }
 
@@ -140,6 +144,11 @@ impl Tagger<'_> {
             }
             Some("c") | Some("h") | Some("i") => {
                 c::generate_tags(&mut self.context, &self.c_config, filename, contents)
+            }
+            Some("cc") | Some("cpp") | Some("CPP") | Some("cxx") | Some("c++") | Some("cp")
+            | Some("C") | Some("cppm") | Some("ixx") | Some("ii") | Some("H") | Some("hh")
+            | Some("hpp") | Some("HPP") | Some("hxx") | Some("h++") | Some("tcc") => {
+                c::generate_tags(&mut self.context, &self.cpp_config, filename, contents)
             }
             _ => vec![],
         }
