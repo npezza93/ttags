@@ -46,6 +46,8 @@ ttags $(git ls-files)
 
 ### Supported languages
 
+- [x] C
+- [x] C++
 - [x] Haskell
 - [x] JavaScript
 - [x] Nix

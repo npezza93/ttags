@@ -11,6 +11,8 @@ pub mod javascript;
 pub mod lsp;
 pub mod nix;
 pub mod ruby;
+pub mod c;
+pub mod cpp;
 pub mod rust;
 pub mod swift;
 pub mod tag;
