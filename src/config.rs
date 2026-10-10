@@ -3,7 +3,7 @@ use pathdiff::diff_paths;
 use std::env;
 use std::ffi::OsStr;
 use std::fs::{File, OpenOptions};
-use std::io::{self, BufReader, BufWriter, Read, Write};
+use std::io::{self, BufRead, BufReader, BufWriter, Read, Write};
 use std::path::{Path, PathBuf};
 use sugar_path::SugarPath;
 use walkdir::WalkDir;
@@ -30,7 +30,10 @@ impl Config {
         let matches = cli::build_cli().get_matches();
 
         let lsp = matches.subcommand_name() == Some("lsp");
-        let files = Self::fetch_files(&matches, lsp);
+        let files = Self::fetch_files(&matches, lsp).unwrap_or_else(|error| {
+            eprintln!("Failed reading file list: {error}");
+            std::process::exit(1);
+        });
         let tag_path = Self::path_to_string(Self::fetch_tag_file(&matches));
         let relative_path = Self::path_to_string(Self::fetch_relative_path(&matches));
         let append = matches.get_flag("append") || lsp;
@@ -88,26 +91,61 @@ impl Config {
         Path::new(&self.tag_path).file_name() == Some(OsStr::new("-"))
     }
 
-    fn fetch_files(matches: &ArgMatches, lsp: bool) -> Vec<String> {
+    fn fetch_files(matches: &ArgMatches, lsp: bool) -> io::Result<Vec<String>> {
         if lsp {
-            vec![]
-        } else {
-            matches
-                .get_many::<String>("files")
-                .unwrap()
-                .flat_map(|f| {
-                    let path = Path::new(&f).absolutize().into_owned();
+            return Ok(vec![]);
+        }
 
-                    if path.is_dir() {
-                        WalkDir::new(path)
-                            .into_iter()
-                            .filter(|entry| entry.as_ref().unwrap().path().is_file())
-                            .map(|entry| Self::path_to_string(entry.unwrap().path().to_path_buf()))
-                            .collect()
-                    } else {
-                        vec![Self::path_to_string(path)]
-                    }
+        let mut paths: Vec<String> = matches
+            .get_many::<String>("files")
+            .into_iter()
+            .flatten()
+            .cloned()
+            .collect();
+
+        if let Some(filename) = matches.get_one::<String>("files_from") {
+            let reader: Box<dyn BufRead> = if filename == "-" {
+                Box::new(io::stdin().lock())
+            } else {
+                Box::new(BufReader::new(File::open(filename)?))
+            };
+            paths.extend(Self::read_file_list(reader, matches.get_flag("null"))?);
+        }
+
+        Ok(paths
+            .iter()
+            .flat_map(|f| {
+                let path = Path::new(f).absolutize().into_owned();
+
+                if path.is_dir() {
+                    WalkDir::new(path)
+                        .into_iter()
+                        .filter(|entry| entry.as_ref().unwrap().path().is_file())
+                        .map(|entry| Self::path_to_string(entry.unwrap().path().to_path_buf()))
+                        .collect()
+                } else {
+                    vec![Self::path_to_string(path)]
+                }
+            })
+            .collect())
+    }
+
+    fn read_file_list(reader: impl BufRead, null: bool) -> io::Result<Vec<String>> {
+        if null {
+            reader
+                .split(0)
+                .filter_map(|path| match path {
+                    Ok(path) if path.is_empty() => None,
+                    path => Some(path.and_then(|path| {
+                        String::from_utf8(path)
+                            .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error))
+                    })),
                 })
+                .collect()
+        } else {
+            reader
+                .lines()
+                .filter(|path| !matches!(path, Ok(path) if path.is_empty()))
                 .collect()
         }
     }
@@ -131,5 +169,26 @@ impl Config {
 
     fn path_to_string(path: PathBuf) -> String {
         path.into_os_string().into_string().unwrap()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::Config;
+    use crate::cli;
+
+    #[test]
+    fn lsp_does_not_read_file_lists() {
+        let matches = cli::build_cli()
+            .try_get_matches_from([
+                "ttags",
+                "--files-from",
+                "missing-file-list",
+                "--null",
+                "lsp",
+            ])
+            .unwrap();
+        assert_eq!(matches.subcommand_name(), Some("lsp"));
+        assert!(Config::fetch_files(&matches, true).unwrap().is_empty());
     }
 }

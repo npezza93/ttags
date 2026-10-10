@@ -7,6 +7,8 @@ pub fn build_cli() -> Command {
         .subcommand_negates_reqs(true)
         .subcommand_precedence_over_arg(true)
         .arg(files_arg())
+        .arg(files_from_arg())
+        .arg(null_arg())
         .arg(tag_file_arg())
         .arg(relative_arg())
         .arg(append_arg())
@@ -17,7 +19,25 @@ fn files_arg() -> Arg {
     Arg::new("files")
         .num_args(1..)
         .help("Specify files to parse for tags")
-        .required(true)
+        .required_unless_present("files_from")
+}
+
+fn files_from_arg() -> Arg {
+    Arg::new("files_from")
+        .short('L')
+        .long("files-from")
+        .value_name("FILE|-")
+        .action(ArgAction::Set)
+        .help("Read file paths from FILE, or stdin when FILE is '-'")
+}
+
+fn null_arg() -> Arg {
+    Arg::new("null")
+        .short('0')
+        .long("null")
+        .action(ArgAction::SetTrue)
+        .requires("files_from")
+        .help("Use NUL-separated paths with --files-from")
 }
 
 fn tag_file_arg() -> Arg {
