@@ -21,7 +21,7 @@ Requires Rust 1.90 or newer (Tree-sitter's minimum supported version).
 git clone https://github.com/npezza93/ttags
 cd ttags
 cargo build --release
-./target/release/ttags $(git ls-files)
+git ls-files -z | ./target/release/ttags --null --files-from -
 ```
 
 ### Usage
@@ -29,10 +29,24 @@ cargo build --release
 Give a list of file paths and/or directories to ttags to parse and generate.
 
 ```bash
-ttags $(git ls-files)
+git ls-files -z | ttags --null --files-from -
 ```
 
+The file list is read in a single invocation, avoiding the shell's argument-size
+limit. NUL separators preserve spaces, quotes, and newlines in input paths.
+File paths must be UTF-8. Tabs and newlines in generated tag paths are not
+escaped by the tags writer.
+Unsupported file extensions are skipped without reading their contents;
+extensionless files are still checked for a Ruby shebang.
+
 #### Options
+
+- `-L` or `--files-from=FILE` - Read one path per line from a file, or from stdin
+  when `FILE` is `-`. May be combined with positional file paths and directories.
+
+- `-0` or `--null` - Use NUL-separated paths with `--files-from`, as produced by
+  `git ls-files -z`.
+
 
 - `-a` or `--apend` - Will keep your tag file in tact and only update the tags
   for the files passed.

@@ -17,6 +17,35 @@ use crate::rust;
 use crate::swift;
 use crate::tag::Tag;
 
+#[derive(Clone, Copy)]
+enum Language {
+    Ruby,
+    JavaScript,
+    Rust,
+    Haskell,
+    Nix,
+    Swift,
+    C,
+    Cpp,
+}
+
+impl Language {
+    fn from_extension(extension: &std::ffi::OsStr) -> Option<Self> {
+        match extension.to_str()? {
+            "rb" => Some(Self::Ruby),
+            "js" => Some(Self::JavaScript),
+            "rs" => Some(Self::Rust),
+            "hs" => Some(Self::Haskell),
+            "nix" => Some(Self::Nix),
+            "swift" => Some(Self::Swift),
+            "c" | "h" | "i" => Some(Self::C),
+            "cc" | "cpp" | "CPP" | "cxx" | "c++" | "cp" | "C" | "cppm" | "ixx" | "ii" | "H"
+            | "hh" | "hpp" | "HPP" | "hxx" | "h++" | "tcc" => Some(Self::Cpp),
+            _ => None,
+        }
+    }
+}
+
 pub struct Tagger<'a> {
     pub context: TagsContext,
     pub ruby_config: TagsConfiguration,
@@ -66,6 +95,13 @@ impl Tagger<'_> {
     }
 
     pub fn read_and_parse(&mut self, filename: &str) -> Vec<Tag> {
+        if Path::new(filename)
+            .extension()
+            .is_some_and(|extension| Language::from_extension(extension).is_none())
+        {
+            return vec![];
+        }
+
         match fs::read(filename) {
             Ok(contents) => self.parse(filename, &contents),
             Err(_) => {
@@ -86,7 +122,9 @@ impl Tagger<'_> {
             Ok(metadata) => {
                 if metadata.is_file() {
                     match path.extension() {
-                        Some(os_str) => self.type_mapping(os_str.to_str(), filename, contents),
+                        Some(os_str) => Language::from_extension(os_str)
+                            .map(|language| self.type_mapping(language, filename, contents))
+                            .unwrap_or_default(),
                         None => {
                             let regex =
                                 Regex::new(r"^#!\s*/usr/bin/env\s+(?P<command>.*)").unwrap();
@@ -96,7 +134,11 @@ impl Tagger<'_> {
                                     Some(regex_match) => match regex_match.name("command") {
                                         Some(command) => {
                                             if command.as_str() == "ruby" {
-                                                self.type_mapping(Some("rb"), filename, contents)
+                                                self.type_mapping(
+                                                    Language::Ruby,
+                                                    filename,
+                                                    contents,
+                                                )
                                             } else {
                                                 vec![]
                                             }
@@ -119,38 +161,33 @@ impl Tagger<'_> {
         }
     }
 
-    fn type_mapping(&mut self, kind: Option<&str>, filename: &str, contents: &[u8]) -> Vec<Tag> {
+    fn type_mapping(&mut self, kind: Language, filename: &str, contents: &[u8]) -> Vec<Tag> {
         match kind {
-            Some("rb") => {
+            Language::Ruby => {
                 ruby::generate_tags(&mut self.context, &self.ruby_config, filename, contents)
             }
-            Some("js") => javascript::generate_tags(
+            Language::JavaScript => javascript::generate_tags(
                 &mut self.context,
                 &self.javascript_config,
                 filename,
                 contents,
             ),
-            Some("rs") => {
+            Language::Rust => {
                 rust::generate_tags(&mut self.context, &self.rust_config, filename, contents)
             }
-            Some("hs") => {
+            Language::Haskell => {
                 haskell::generate_tags(&mut self.context, &self.haskell_config, filename, contents)
             }
-            Some("nix") => {
+            Language::Nix => {
                 nix::generate_tags(&mut self.context, &self.nix_config, filename, contents)
             }
-            Some("swift") => {
+            Language::Swift => {
                 swift::generate_tags(&mut self.context, &self.swift_config, filename, contents)
             }
-            Some("c") | Some("h") | Some("i") => {
-                c::generate_tags(&mut self.context, &self.c_config, filename, contents)
-            }
-            Some("cc") | Some("cpp") | Some("CPP") | Some("cxx") | Some("c++") | Some("cp")
-            | Some("C") | Some("cppm") | Some("ixx") | Some("ii") | Some("H") | Some("hh")
-            | Some("hpp") | Some("HPP") | Some("hxx") | Some("h++") | Some("tcc") => {
+            Language::C => c::generate_tags(&mut self.context, &self.c_config, filename, contents),
+            Language::Cpp => {
                 c::generate_tags(&mut self.context, &self.cpp_config, filename, contents)
             }
-            _ => vec![],
         }
     }
 
@@ -178,5 +215,30 @@ impl Tagger<'_> {
         }
         tags.iter()
             .for_each(|tag| output.write_all(&tag.as_bytes(self.config)).unwrap());
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::Language;
+    use std::ffi::OsStr;
+
+    #[test]
+    fn preserves_supported_extensions() {
+        for extension in [
+            "rb", "js", "rs", "hs", "nix", "swift", "c", "h", "i", "cc", "cpp", "CPP", "cxx",
+            "c++", "cp", "C", "cppm", "ixx", "ii", "H", "hh", "hpp", "HPP", "hxx", "h++", "tcc",
+        ] {
+            assert!(
+                Language::from_extension(OsStr::new(extension)).is_some(),
+                "{extension}"
+            );
+        }
+        for extension in ["png", "json", "md", "txt", "RB", "RS", ""] {
+            assert!(
+                Language::from_extension(OsStr::new(extension)).is_none(),
+                "{extension}"
+            );
+        }
     }
 }
