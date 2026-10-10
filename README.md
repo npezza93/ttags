@@ -14,6 +14,9 @@ Binaries are also available on the releases page of the repo.
 Download the tar file, and place the executable in your path.
 
 ##### From source
+
+Requires Rust 1.90 or newer (Tree-sitter's minimum supported version).
+
 ```bash
 git clone https://github.com/npezza93/ttags
 cd ttags

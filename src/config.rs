@@ -33,7 +33,7 @@ impl Config {
         let files = Self::fetch_files(&matches, lsp);
         let tag_path = Self::path_to_string(Self::fetch_tag_file(&matches));
         let relative_path = Self::path_to_string(Self::fetch_relative_path(&matches));
-        let append = matches.is_present("append") || lsp;
+        let append = matches.get_flag("append") || lsp;
 
         Self {
             files,
@@ -88,15 +88,15 @@ impl Config {
         Path::new(&self.tag_path).file_name() == Some(OsStr::new("-"))
     }
 
-    fn fetch_files(matches: &ArgMatches<'_>, lsp: bool) -> Vec<String> {
+    fn fetch_files(matches: &ArgMatches, lsp: bool) -> Vec<String> {
         if lsp {
             vec![]
         } else {
             matches
-                .values_of("files")
+                .get_many::<String>("files")
                 .unwrap()
                 .flat_map(|f| {
-                    let path = Path::new(&f).resolve();
+                    let path = Path::new(&f).absolutize().into_owned();
 
                     if path.is_dir() {
                         WalkDir::new(path)
@@ -112,15 +112,16 @@ impl Config {
         }
     }
 
-    fn fetch_tag_file(matches: &ArgMatches<'_>) -> PathBuf {
-        Path::new(matches.value_of("tag_file").unwrap()).resolve()
+    fn fetch_tag_file(matches: &ArgMatches) -> PathBuf {
+        Path::new(matches.get_one::<String>("tag_file").unwrap())
+            .absolutize()
+            .into_owned()
     }
 
-    fn fetch_relative_path(matches: &ArgMatches<'_>) -> PathBuf {
+    fn fetch_relative_path(matches: &ArgMatches) -> PathBuf {
         let tag_file = Self::fetch_tag_file(matches);
 
-        if !matches.is_present("relative")
-            && tag_file.as_path().file_name() != Some(OsStr::new("-"))
+        if !matches.get_flag("relative") && tag_file.as_path().file_name() != Some(OsStr::new("-"))
         {
             tag_file.parent().unwrap().to_path_buf()
         } else {

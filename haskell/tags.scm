@@ -27,7 +27,7 @@
       (variable) @name) @definition.function)
 
 ; Type synonym definitions
-(type_synomym
+(type_synonym
     name: (_) @name) @definition.class
 
 ; Function definitions

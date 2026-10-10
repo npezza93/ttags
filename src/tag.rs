@@ -15,7 +15,8 @@ impl Tag {
         let parts = tag.trim().split('\t').collect::<Vec<&str>>();
         let name = parts[0].to_string();
         let filename = Path::new(parts[1])
-            .resolve()
+            .absolutize()
+            .into_owned()
             .into_os_string()
             .into_string()
             .unwrap();
