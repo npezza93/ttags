@@ -25,12 +25,10 @@ pub struct App {}
 impl App {
     pub fn run() -> Result<i32, Box<dyn Error>> {
         let config = Config::new();
-        let mut tagger = Tagger::new(&config);
-
         if config.lsp {
-            Lsp::run(&mut tagger)?;
+            Lsp::run(&mut Tagger::new(&config))?;
         } else {
-            tagger.run(&config.files);
+            tagger::run_batch(&config);
         }
 
         Ok(0)
