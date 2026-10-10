@@ -1,12 +1,15 @@
 use inflector::string::singularize::to_singular;
 use npezza93_tree_sitter_tags::{Tag as TSTag, TagsConfiguration, TagsContext};
 use std::str;
+use std::sync::LazyLock;
 use streaming_iterator::StreamingIterator;
 use tree_sitter::{Parser, Query, QueryCursor};
 
 use crate::tag::Tag;
 
 const DELEGATE_SCHEMA: &str = include_str!("../ruby/delegate.scm");
+static DELEGATE_QUERY: LazyLock<Query> =
+    LazyLock::new(|| Query::new(&tree_sitter_ruby::LANGUAGE.into(), DELEGATE_SCHEMA).unwrap());
 
 pub fn config() -> TagsConfiguration {
     TagsConfiguration::new(
@@ -145,9 +148,8 @@ fn delegate_name<'a>(parsed_name: &'a str, docs: &'a [u8]) -> String {
     parser.reset();
 
     let tree = parser.parse(docs, None).unwrap();
-    let query = Query::new(&tree_sitter_ruby::LANGUAGE.into(), DELEGATE_SCHEMA).unwrap();
 
-    let mut matches = cursor.matches(&query, tree.root_node(), docs);
+    let mut matches = cursor.matches(&DELEGATE_QUERY, tree.root_node(), docs);
 
     let mut is_match = false;
     let mut matchy1 = None;
@@ -167,5 +169,58 @@ fn delegate_name<'a>(parsed_name: &'a str, docs: &'a [u8]) -> String {
         }
     } else {
         parsed_name.to_string()
+    }
+}
+
+#[cfg(test)]
+mod performance_regressions {
+    use super::delegate_name;
+
+    #[test]
+    fn cached_delegate_query_handles_changing_options() {
+        let cases: &[(&str, &[u8], &str)] = &[
+            (
+                "name",
+                b"delegate :name, to: :author, prefix: true",
+                "author_name",
+            ),
+            ("email", b"delegate :email, to: :author", "email"),
+            (
+                "name",
+                b"delegate :name, to: :reader, prefix: false",
+                "name",
+            ),
+            (
+                "name",
+                b"delegate :name, to: :reader, prefix: true",
+                "reader_name",
+            ),
+            ("name", b"delegate :name", "name"),
+            ("name", b"", "name"),
+            (
+                "café",
+                "delegate :café, to: :écrivain, prefix: true".as_bytes(),
+                "écrivain_café",
+            ),
+        ];
+        for _ in 0..3 {
+            for (name, docs, expected) in cases {
+                assert_eq!(delegate_name(name, docs), *expected);
+            }
+        }
+    }
+
+    #[test]
+    fn cached_delegate_query_is_usable_from_independent_threads() {
+        std::thread::scope(|scope| {
+            for _ in 0..4 {
+                scope.spawn(|| {
+                    assert_eq!(
+                        delegate_name("name", b"delegate :name, to: :author, prefix: true"),
+                        "author_name"
+                    );
+                });
+            }
+        });
     }
 }
