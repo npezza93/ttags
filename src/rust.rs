@@ -6,7 +6,8 @@ use crate::tag::Tag;
 
 pub fn config() -> TagsConfiguration {
     TagsConfiguration::new(
-        tree_sitter_rust::LANGUAGE.into(), include_str!("../rust/tags.scm"),
+        tree_sitter_rust::LANGUAGE.into(),
+        include_str!("../rust/tags.scm"),
         "",
     )
     .unwrap()

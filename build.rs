@@ -1,7 +1,4 @@
-#[macro_use]
-extern crate clap;
-
-use clap::Shell;
+use clap_complete::{Shell, generate_to};
 use std::env;
 use std::path::PathBuf;
 
@@ -16,7 +13,7 @@ fn main() {
     outdir.pop();
     outdir.pop();
 
-    app.gen_completions("ttags", Shell::Bash, &outdir);
-    app.gen_completions("ttags", Shell::Fish, &outdir);
-    app.gen_completions("ttags", Shell::Zsh, outdir);
+    generate_to(Shell::Bash, &mut app, "ttags", &outdir).unwrap();
+    generate_to(Shell::Fish, &mut app, "ttags", &outdir).unwrap();
+    generate_to(Shell::Zsh, &mut app, "ttags", outdir).unwrap();
 }

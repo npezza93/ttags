@@ -1,8 +1,8 @@
 use inflector::string::singularize::to_singular;
 use npezza93_tree_sitter_tags::{Tag as TSTag, TagsConfiguration, TagsContext};
 use std::str;
-use tree_sitter::{Parser, Query, QueryCursor};
 use streaming_iterator::StreamingIterator;
+use tree_sitter::{Parser, Query, QueryCursor};
 
 use crate::tag::Tag;
 
@@ -29,7 +29,7 @@ pub fn generate_tags<'a>(
         let tag = tag.unwrap();
         let node_name = config.syntax_type_name(tag.syntax_type_id);
         let tag_name = &contents[tag.name_range.start..tag.name_range.end];
-        let original_name = str::from_utf8(<&[u8]>::clone(&tag_name)).unwrap_or("");
+        let original_name = str::from_utf8(tag_name).unwrap_or("");
         let docs = tag.docs.clone().unwrap_or_default().as_bytes().to_owned();
 
         let name = name_override(node_name, original_name, tag_name);
@@ -153,11 +153,11 @@ fn delegate_name<'a>(parsed_name: &'a str, docs: &'a [u8]) -> String {
     let mut matchy1 = None;
     if let Some(matchy) = matches.next() {
         is_match = true;
-        matchy1 = Some(matchy.captures[1])
+        matchy1 = Some(matchy.captures()[1])
     };
     let is_prefix_match = matches.next().is_some();
 
-    let name = if is_match {
+    if is_match {
         if is_prefix_match {
             let prefix = matchy1.unwrap().node.utf8_text(docs).unwrap().to_owned();
 
@@ -167,7 +167,5 @@ fn delegate_name<'a>(parsed_name: &'a str, docs: &'a [u8]) -> String {
         }
     } else {
         parsed_name.to_string()
-    };
-
-    name
+    }
 }
