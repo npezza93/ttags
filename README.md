@@ -39,6 +39,13 @@ escaped by the tags writer.
 Unsupported file extensions are skipped without reading their contents;
 extensionless files are still checked for a Ruby shebang.
 
+Batch CLI generation parses files in parallel, using at most eight workers and
+initializing only the language configurations each worker needs. Small batches
+(up to 64 paths) use one parser. `RAYON_NUM_THREADS` can lower this limit;
+`RAYON_NUM_THREADS=1` runs parsing serially. Equal-name tags retain input
+order. The public `Tagger` API and LSP continue using their existing parser and
+caller-provided configurations.
+
 #### Options
 
 - `-L` or `--files-from=FILE` - Read one path per line from a file, or from stdin
