@@ -264,8 +264,9 @@ checksum = "cf8baf1c55e62ffcace7a9f06f4bd9cd3f0c4beb022d3b367256b91b87513d98"
 
 [[package]]
 name = "npezza93_tree-sitter-tags"
-version = "0.22.0"
-source = "git+https://github.com/npezza93/tree-sitter-tags?rev=68766fe70db47903c9299d944767fd9cb17194ab#68766fe70db47903c9299d944767fd9cb17194ab"
+version = "0.23.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "024d52d739134f005a5e2696329095d1f21497c902232e35ddca1ac34a734fa3"
 dependencies = [
  "memchr",
  "regex",
