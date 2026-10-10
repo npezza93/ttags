@@ -16,7 +16,8 @@ impl Project {
             NEXT_ID.fetch_add(1, Ordering::Relaxed)
         ));
         fs::create_dir(&path).unwrap();
-        Self(path)
+        // macOS temp_dir() may use /var, while the child cwd resolves /private/var.
+        Self(path.canonicalize().unwrap())
     }
 
     fn run(&self, files: &[String], threads: usize, args: &[&str]) -> Output {
