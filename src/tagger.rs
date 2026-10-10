@@ -9,6 +9,7 @@ use std::process::exit;
 use crate::c;
 use crate::config::Config;
 use crate::cpp;
+use crate::d;
 use crate::haskell;
 use crate::javascript;
 use crate::nix;
@@ -19,6 +20,7 @@ use crate::tag::Tag;
 
 #[derive(Clone, Copy)]
 enum Language {
+    D,
     Ruby,
     JavaScript,
     Rust,
@@ -32,6 +34,7 @@ enum Language {
 impl Language {
     fn from_extension(extension: &std::ffi::OsStr) -> Option<Self> {
         match extension.to_str()? {
+            "d" | "di" => Some(Self::D),
             "rb" => Some(Self::Ruby),
             "js" => Some(Self::JavaScript),
             "rs" => Some(Self::Rust),
@@ -48,6 +51,7 @@ impl Language {
 
 pub struct Tagger<'a> {
     pub context: TagsContext,
+    pub d_config: TagsConfiguration,
     pub ruby_config: TagsConfiguration,
     pub javascript_config: TagsConfiguration,
     pub rust_config: TagsConfiguration,
@@ -62,6 +66,7 @@ pub struct Tagger<'a> {
 impl Tagger<'_> {
     pub fn new(config: &'_ Config) -> Tagger<'_> {
         let context = TagsContext::new();
+        let d_config = d::config();
         let ruby_config = ruby::config();
         let javascript_config = javascript::config();
         let rust_config = rust::config();
@@ -74,6 +79,7 @@ impl Tagger<'_> {
         Tagger {
             config,
             context,
+            d_config,
             ruby_config,
             javascript_config,
             rust_config,
@@ -163,6 +169,7 @@ impl Tagger<'_> {
 
     fn type_mapping(&mut self, kind: Language, filename: &str, contents: &[u8]) -> Vec<Tag> {
         match kind {
+            Language::D => d::generate_tags(&mut self.context, &self.d_config, filename, contents),
             Language::Ruby => {
                 ruby::generate_tags(&mut self.context, &self.ruby_config, filename, contents)
             }
@@ -226,8 +233,9 @@ mod tests {
     #[test]
     fn preserves_supported_extensions() {
         for extension in [
-            "rb", "js", "rs", "hs", "nix", "swift", "c", "h", "i", "cc", "cpp", "CPP", "cxx",
-            "c++", "cp", "C", "cppm", "ixx", "ii", "H", "hh", "hpp", "HPP", "hxx", "h++", "tcc",
+            "d", "di", "rb", "js", "rs", "hs", "nix", "swift", "c", "h", "i", "cc", "cpp", "CPP",
+            "cxx", "c++", "cp", "C", "cppm", "ixx", "ii", "H", "hh", "hpp", "HPP", "hxx", "h++",
+            "tcc",
         ] {
             assert!(
                 Language::from_extension(OsStr::new(extension)).is_some(),

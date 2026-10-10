@@ -4,6 +4,7 @@ pub mod c;
 pub mod cli;
 pub mod config;
 pub mod cpp;
+pub mod d;
 pub mod generate;
 pub mod haskell;
 pub mod javascript;
