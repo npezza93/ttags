@@ -65,6 +65,7 @@ extensionless files are still checked for a Ruby shebang.
 
 - [x] C
 - [x] C++
+- [x] D (`.d` and `.di`, including alias declarations)
 - [x] Haskell
 - [x] JavaScript
 - [x] Nix

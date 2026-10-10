@@ -51,3 +51,36 @@ language_fixture!(
     "metadata.rb",
     "metadata.rb.tags"
 );
+
+language_fixture!(d_tags, "sample.d", "sample.d.tags");
+language_fixture!(d_aliases, "aliases.d", "aliases.d.tags");
+language_fixture!(d_interface, "interface.di", "interface.di.tags");
+
+#[test]
+fn d_fixtures_parse_without_errors() {
+    let mut parser = tree_sitter::Parser::new();
+    parser
+        .set_language(&tree_sitter_d::LANGUAGE.into())
+        .unwrap();
+    for (name, source) in [
+        (
+            "sample.d",
+            include_str!("fixtures/languages/naïve/sample.d"),
+        ),
+        (
+            "aliases.d",
+            include_str!("fixtures/languages/naïve/aliases.d"),
+        ),
+        (
+            "interface.di",
+            include_str!("fixtures/languages/naïve/interface.di"),
+        ),
+    ] {
+        let tree = parser.parse(source, None).unwrap();
+        assert!(
+            !tree.root_node().has_error(),
+            "{name} must exercise valid grammar, not error recovery: {}",
+            tree.root_node().to_sexp()
+        );
+    }
+}
